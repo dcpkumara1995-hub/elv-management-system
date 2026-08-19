@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ELV Management System - Dashboard</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            background: #f4f6f8;
+            color: #333;
+        }
+
+
+        .header {
+            background: #1f2937;
+            color: white;
+            padding: 18px 30px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
+        .header h1 {
+            font-size: 22px;
+        }
+
+
+        .logout {
+            color: white;
+            text-decoration: none;
+            background: #dc2626;
+
+            padding: 9px 16px;
+
+            border-radius: 6px;
+        }
+
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+
+
+        .welcome h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+
+        .welcome p {
+            color: #666;
+        }
+
+
+        .cards {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+
+            gap: 20px;
+        }
+
+
+        .card {
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 10px;
+
+            text-decoration: none;
+
+            color: #333;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.08);
+
+            transition: 0.2s;
+        }
+
+
+        .card:hover {
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 5px 15px rgba(0,0,0,0.12);
+        }
+
+
+        .icon {
+            font-size: 35px;
+
+            margin-bottom: 15px;
+        }
+
+
+        .card h3 {
+            margin-bottom: 8px;
+
+            font-size: 20px;
+        }
+
+
+        .card p {
+            color: #777;
+
+            font-size: 14px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>
+            ELV Management System
+        </h1>
+
+
+        <a
+            href="{% url 'logout' %}"
+            class="logout"
+        >
+            Logout
+        </a>
+
+    </div>
+
+
+
+    <!-- MAIN CONTAINER -->
+
+    <div class="container">
+
+
+        <!-- WELCOME -->
+
+        <div class="welcome">
+
+            <h2>
+                Dashboard
+            </h2>
+
+
+            <p>
+                Welcome, {{ request.user.username }}
+            </p>
+
+        </div>
+
+
+
+        <!-- DASHBOARD CARDS -->
+
+        <div class="cards">
+
+
+            <!-- STOCK UPDATE -->
+
+            <a
+                href="{% url 'stock_update' %}"
+                class="card"
+            >
+
+                <div class="icon">
+                    📦
+                </div>
+
+
+                <h3>
+                    Stock Update
+                </h3>
+
+
+                <p>
+                    Update and manage stock items.
+                </p>
+
+            </a>
+
+
+
+            <!-- CURRENT STOCK -->
+
+            <a
+                href="{% url 'current_stock' %}"
+                class="card"
+            >
+
+                <div class="icon">
+                    📊
+                </div>
+
+
+                <h3>
+                    Current Stock
+                </h3>
+
+
+                <p>
+                    View current available stock.
+                </p>
+
+            </a>
+
+
+
+            <!-- REPORTS -->
+
+            <a
+                href="{% url 'reports' %}"
+                class="card"
+            >
+
+                <div class="icon">
+                    📈
+                </div>
+
+
+                <h3>
+                    Reports
+                </h3>
+
+
+                <p>
+                    View stock reports and records.
+                </p>
+
+            </a>
+
+
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Current Stock - ELV Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f8;
+            color: #333;
+        }
+
+        .header {
+            background: #1f2937;
+            color: white;
+            padding: 18px 30px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+        }
+
+        .back {
+            color: white;
+            text-decoration: none;
+            background: #2563eb;
+            padding: 9px 16px;
+            border-radius: 6px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .title {
+            margin-bottom: 25px;
+        }
+
+        .title h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .title p {
+            color: #666;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #1f2937;
+            color: white;
+            padding: 14px;
+            text-align: left;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .low-stock {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .normal-stock {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+
+        .update-button {
+            display: inline-block;
+            margin-top: 20px;
+
+            background: #2563eb;
+            color: white;
+
+            padding: 11px 18px;
+            border-radius: 6px;
+
+            text-decoration: none;
+        }
+
+        .update-button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+
+        <h1>ELV Management System</h1>
+
+        <a href="{% url 'dashboard' %}" class="back">
+            Dashboard
+        </a>
+
+    </div>
+
+
+    <div class="container">
+
+        <div class="title">
+
+            <h2>Current Stock</h2>
+
+            <p>Current available stock items</p>
+
+        </div>
+
+
+        <div class="table-container">
+
+            {% if items %}
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Item</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Minimum Stock</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in items %}
+
+                    <tr>
+
+                        <td>
+                            <strong>{{ item.name }}</strong>
+                        </td>
+
+                        <td>
+                            {{ item.category|default:"-" }}
+                        </td>
+
+                        <td>
+                            {{ item.quantity }}
+                        </td>
+
+                        <td>
+                            {{ item.unit }}
+                        </td>
+
+                        <td>
+                            {{ item.minimum_stock }}
+                        </td>
+
+                        <td>
+
+                            {% if item.quantity <= item.minimum_stock %}
+
+                                <span class="low-stock">
+                                    LOW STOCK
+                                </span>
+
+                            {% else %}
+
+                                <span class="normal-stock">
+                                    AVAILABLE
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+                <div class="empty">
+                    <h3>No stock items found</h3>
+                    <p>Please add stock items first.</p>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <a href="{% url 'stock_update' %}" class="update-button">
+            Update Stock
+        </a>
+
+    </div>
+
+</body>
+</html>
