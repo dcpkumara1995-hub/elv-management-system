@@ -11,3 +11,4 @@ backup_data.json
 !.env.example
 
 *.log
+staticfiles/

@@ -1,5 +1,5 @@
 """
-Django settings for config project.
+Django settings for ELV Management System.
 """
 
 from pathlib import Path
@@ -17,9 +17,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 # ============================================================
 
-SECRET_KEY = 'django-insecure-7olfo_fa1q*a9cn$lnae04-s7uv$)&se7zwt+0-28ucfk_rki3'
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-local-development-key-change-in-production"
+)
 
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 
 # ============================================================
@@ -30,8 +33,13 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     "192.168.8.100",
-    "clinics-mar-paint-verde.trycloudflare.com",
 ]
+
+# Render automatically provides this hostname
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # ============================================================
@@ -40,16 +48,16 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
 
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 
-    'stock',
-    'accounts',
-    'app',
+    "stock",
+    "accounts",
+    "app",
 ]
 
 
@@ -59,19 +67,22 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
 
-    'django.middleware.security.SecurityMiddleware',
+    "django.middleware.security.SecurityMiddleware",
 
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    # WhiteNoise serves static files on Render
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 
-    'django.middleware.common.CommonMiddleware',
+    "django.contrib.sessions.middleware.SessionMiddleware",
 
-    'django.middleware.csrf.CsrfViewMiddleware',
+    "django.middleware.common.CommonMiddleware",
 
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "django.middleware.csrf.CsrfViewMiddleware",
 
-    'django.contrib.messages.middleware.MessageMiddleware',
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
 
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.contrib.messages.middleware.MessageMiddleware",
+
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 
@@ -79,7 +90,7 @@ MIDDLEWARE = [
 # URL CONFIGURATION
 # ============================================================
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
 
 
 # ============================================================
@@ -89,21 +100,21 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
 
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
 
-        'DIRS': [],
+        "DIRS": [],
 
-        'APP_DIRS': True,
+        "APP_DIRS": True,
 
-        'OPTIONS': {
+        "OPTIONS": {
 
-            'context_processors': [
+            "context_processors": [
 
-                'django.template.context_processors.request',
+                "django.template.context_processors.request",
 
-                'django.contrib.auth.context_processors.auth',
+                "django.contrib.auth.context_processors.auth",
 
-                'django.contrib.messages.context_processors.messages',
+                "django.contrib.messages.context_processors.messages",
 
             ],
 
@@ -116,7 +127,7 @@ TEMPLATES = [
 # WSGI
 # ============================================================
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = "config.wsgi.application"
 
 
 # ============================================================
@@ -126,26 +137,25 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
 
-    'default': {
+    "default": {
 
-        'ENGINE': 'django.db.backends.postgresql',
+        "ENGINE": "django.db.backends.postgresql",
 
-        'NAME': 'postgres',
+        "NAME": "postgres",
 
-        'USER': 'postgres.motylueljrdiypmxfvki',
+        "USER": "postgres.motylueljrdiypmxfvki",
 
-        'PASSWORD': os.environ.get(
-            'SUPABASE_DB_PASSWORD'
+        "PASSWORD": os.environ.get(
+            "SUPABASE_DB_PASSWORD",
+            ""
         ),
 
-        'HOST': 'aws-0-ap-northeast-2.pooler.supabase.com',
+        "HOST": "aws-0-ap-northeast-2.pooler.supabase.com",
 
-        'PORT': '5432',
+        "PORT": "5432",
 
-        'OPTIONS': {
-
-            'sslmode': 'require',
-
+        "OPTIONS": {
+            "sslmode": "require",
         },
     }
 }
@@ -158,23 +168,23 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = [
 
     {
-        'NAME':
-        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME":
+        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
 
     {
-        'NAME':
-        'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME":
+        "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
 
     {
-        'NAME':
-        'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME":
+        "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
 
     {
-        'NAME':
-        'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME":
+        "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -183,9 +193,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # INTERNATIONALIZATION
 # ============================================================
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "Asia/Colombo"
 
 USE_I18N = True
 
@@ -196,14 +206,20 @@ USE_TZ = True
 # STATIC FILES
 # ============================================================
 
-STATIC_URL = 'static/'
+STATIC_URL = "/static/"
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
 
 
 # ============================================================
 # DEFAULT PRIMARY KEY
 # ============================================================
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # ============================================================
@@ -215,3 +231,9 @@ CSRF_TRUSTED_ORIGINS = [
     "https://scheme-hepatitis-muscles-ross.trycloudflare.com",
 
 ]
+
+# Add Render URL automatically
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(
+        f"https://{RENDER_EXTERNAL_HOSTNAME}"
+    )
