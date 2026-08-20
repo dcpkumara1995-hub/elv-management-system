@@ -33,10 +33,13 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     "192.168.8.100",
+    "elv-management-system-efca6.containers.snapdeploy.app",
 ]
 
-# Render automatically provides this hostname
-RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+# Render hostname (kept for compatibility)
+RENDER_EXTERNAL_HOSTNAME = os.environ.get(
+    "RENDER_EXTERNAL_HOSTNAME"
+)
 
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -69,7 +72,7 @@ MIDDLEWARE = [
 
     "django.middleware.security.SecurityMiddleware",
 
-    # WhiteNoise serves static files on Render
+    # WhiteNoise serves static files
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -228,12 +231,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CSRF_TRUSTED_ORIGINS = [
 
-    "https://scheme-hepatitis-muscles-ross.trycloudflare.com",
+    "https://elv-management-system-efca6.containers.snapdeploy.app",
 
+    "https://scheme-hepatitis-muscles-ross.trycloudflare.com",
 ]
 
-# Add Render URL automatically
+
+# Add Render URL automatically if available
 if RENDER_EXTERNAL_HOSTNAME:
+
     CSRF_TRUSTED_ORIGINS.append(
         f"https://{RENDER_EXTERNAL_HOSTNAME}"
     )
