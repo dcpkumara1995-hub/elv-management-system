@@ -1,187 +1,193 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Current Stock - ELV Management System</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Current Stock</title>
 
     <style>
+
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
         }
 
         body {
+            font-family: Arial, sans-serif;
             background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
             color: #333;
         }
 
-        .header {
-            background: #1f2937;
-            color: white;
-            padding: 18px 30px;
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            box-shadow:
+                0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .header h1 {
-            font-size: 22px;
-        }
+        /* BACK BUTTON */
 
         .back {
+            display: inline-block;
+
+            margin-bottom: 20px;
+
+            padding: 10px 18px;
+
+            background: #4b5563;
+
             color: white;
+
             text-decoration: none;
-            background: #2563eb;
-            padding: 9px 16px;
+
             border-radius: 6px;
+
+            font-size: 15px;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 20px;
+        .back:hover {
+            background: #374151;
         }
 
-        .title {
+        h1 {
+            margin-top: 0;
             margin-bottom: 25px;
         }
 
-        .title h2 {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .title p {
-            color: #666;
-        }
+        /* TABLE */
 
         .table-container {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-
             overflow-x: auto;
         }
 
         table {
             width: 100%;
+
             border-collapse: collapse;
+
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+
+            text-align: left;
+
+            border-bottom: 1px solid #ddd;
         }
 
         th {
             background: #1f2937;
-            color: white;
-            padding: 14px;
-            text-align: left;
-        }
 
-        td {
-            padding: 14px;
-            border-bottom: 1px solid #e5e7eb;
+            color: white;
         }
 
         tr:hover {
             background: #f9fafb;
         }
 
-        .low-stock {
-            color: #dc2626;
-            font-weight: bold;
-        }
-
-        .normal-stock {
-            color: #16a34a;
-            font-weight: bold;
-        }
-
         .empty {
             text-align: center;
-            padding: 40px;
+
+            padding: 30px;
+
             color: #777;
         }
 
-        .update-button {
-            display: inline-block;
-            margin-top: 20px;
+        @media (max-width: 600px) {
 
-            background: #2563eb;
-            color: white;
+            body {
+                padding: 10px;
+            }
 
-            padding: 11px 18px;
-            border-radius: 6px;
+            .container {
+                margin: 10px auto;
 
-            text-decoration: none;
+                padding: 20px;
+            }
+
+            th,
+            td {
+                padding: 9px;
+
+                font-size: 14px;
+            }
+
         }
 
-        .update-button:hover {
-            background: #1d4ed8;
-        }
     </style>
+
 </head>
+
 
 <body>
 
-    <div class="header">
 
-        <h1>ELV Management System</h1>
-
-        <a href="{% url 'dashboard' %}" class="back">
-            Dashboard
-        </a>
-
-    </div>
+<div class="container">
 
 
-    <div class="container">
+    <!-- BACK TO IIT PROJECT -->
 
-        <div class="title">
-
-            <h2>Current Stock</h2>
-
-            <p>Current available stock items</p>
-
-        </div>
-
-
-        <div class="table-container">
-
-            {% if items %}
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Item</th>
-                        <th>Category</th>
-                        <th>Quantity</th>
-                        <th>Unit</th>
-                        <th>Minimum Stock</th>
-                        <th>Status</th>
-                    </tr>
-
-                </thead>
+    <a
+        href="{% url 'iit_project' %}"
+        class="back"
+    >
+        ← Back to IIT Project
+    </a>
 
 
-                <tbody>
+    <h1>
+        Current Stock
+    </h1>
 
-                    {% for item in items %}
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Item
+                    </th>
+
+                    <th>
+                        Quantity
+                    </th>
+
+                    <th>
+                        Unit
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for item in items %}
 
                     <tr>
 
                         <td>
-                            <strong>{{ item.name }}</strong>
-                        </td>
-
-                        <td>
-                            {{ item.category|default:"-" }}
+                            {{ item.name }}
                         </td>
 
                         <td>
@@ -192,53 +198,34 @@
                             {{ item.unit }}
                         </td>
 
-                        <td>
-                            {{ item.minimum_stock }}
-                        </td>
+                    </tr>
 
-                        <td>
+                {% empty %}
 
-                            {% if item.quantity <= item.minimum_stock %}
+                    <tr>
 
-                                <span class="low-stock">
-                                    LOW STOCK
-                                </span>
-
-                            {% else %}
-
-                                <span class="normal-stock">
-                                    AVAILABLE
-                                </span>
-
-                            {% endif %}
-
+                        <td
+                            colspan="3"
+                            class="empty"
+                        >
+                            No stock items available.
                         </td>
 
                     </tr>
 
-                    {% endfor %}
+                {% endfor %}
 
-                </tbody>
+            </tbody>
 
-            </table>
-
-            {% else %}
-
-                <div class="empty">
-                    <h3>No stock items found</h3>
-                    <p>Please add stock items first.</p>
-                </div>
-
-            {% endif %}
-
-        </div>
-
-
-        <a href="{% url 'stock_update' %}" class="update-button">
-            Update Stock
-        </a>
+        </table>
 
     </div>
 
+
+</div>
+
+
 </body>
+
 </html>
+```

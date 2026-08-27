@@ -1,9 +1,12 @@
 """
 Django settings for ELV Management System.
+Supabase PostgreSQL Configuration
 """
 
 from pathlib import Path
 import os
+import dj_database_url
+from dotenv import load_dotenv
 
 
 # ============================================================
@@ -12,6 +15,8 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR / ".env")
+
 
 # ============================================================
 # SECURITY
@@ -19,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY",
-    "django-insecure-local-development-key-change-in-production"
+    "django-insecure-local-development-key"
 )
 
-DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
 
 # ============================================================
@@ -36,21 +41,12 @@ ALLOWED_HOSTS = [
     "elv-management-system-efca6.containers.snapdeploy.app",
 ]
 
-# Render hostname (kept for compatibility)
-RENDER_EXTERNAL_HOSTNAME = os.environ.get(
-    "RENDER_EXTERNAL_HOSTNAME"
-)
-
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-
 
 # ============================================================
 # APPLICATIONS
 # ============================================================
 
 INSTALLED_APPS = [
-
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -61,6 +57,7 @@ INSTALLED_APPS = [
     "stock",
     "accounts",
     "app",
+    "attendance",
 ]
 
 
@@ -69,10 +66,8 @@ INSTALLED_APPS = [
 # ============================================================
 
 MIDDLEWARE = [
-
     "django.middleware.security.SecurityMiddleware",
 
-    # WhiteNoise serves static files
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -101,7 +96,6 @@ ROOT_URLCONF = "config.urls"
 # ============================================================
 
 TEMPLATES = [
-
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
 
@@ -110,17 +104,13 @@ TEMPLATES = [
         "APP_DIRS": True,
 
         "OPTIONS": {
-
             "context_processors": [
-
                 "django.template.context_processors.request",
 
                 "django.contrib.auth.context_processors.auth",
 
                 "django.contrib.messages.context_processors.messages",
-
             ],
-
         },
     },
 ]
@@ -138,30 +128,28 @@ WSGI_APPLICATION = "config.wsgi.application"
 # SUPABASE POSTGRESQL
 # ============================================================
 
-DATABASES = {
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-    "default": {
+if DATABASE_URL:
 
-        "ENGINE": "django.db.backends.postgresql",
-
-        "NAME": "postgres",
-
-        "USER": "postgres.motylueljrdiypmxfvki",
-
-        "PASSWORD": os.environ.get(
-            "SUPABASE_DB_PASSWORD",
-            ""
-        ),
-
-        "HOST": "aws-0-ap-northeast-2.pooler.supabase.com",
-
-        "PORT": "5432",
-
-        "OPTIONS": {
-            "sslmode": "require",
-        },
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=True,
+        )
     }
-}
+
+else:
+
+    # Local fallback
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # ============================================================
@@ -169,7 +157,6 @@ DATABASES = {
 # ============================================================
 
 AUTH_PASSWORD_VALIDATORS = [
-
     {
         "NAME":
         "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -226,20 +213,48 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # ============================================================
+# LOGIN / LOGOUT
+# ============================================================
+
+LOGIN_URL = "/login/"
+
+LOGIN_REDIRECT_URL = "/dashboard/"
+
+LOGOUT_REDIRECT_URL = "/login/"
+
+
+# ============================================================
 # CSRF TRUSTED ORIGINS
 # ============================================================
 
 CSRF_TRUSTED_ORIGINS = [
-
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "http://192.168.8.100:8000",
     "https://elv-management-system-efca6.containers.snapdeploy.app",
-
-    "https://scheme-hepatitis-muscles-ross.trycloudflare.com",
 ]
 
 
-# Add Render URL automatically if available
-if RENDER_EXTERNAL_HOSTNAME:
+# ============================================================
+# SESSION
+# ============================================================
 
-    CSRF_TRUSTED_ORIGINS.append(
-        f"https://{RENDER_EXTERNAL_HOSTNAME}"
+SESSION_COOKIE_AGE = 86400
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+
+# ============================================================
+# PRODUCTION SECURITY
+# ============================================================
+
+if not DEBUG:
+
+    SECURE_PROXY_SSL_HEADER = (
+        "HTTP_X_FORWARDED_PROTO",
+        "https",
     )
+
+    SESSION_COOKIE_SECURE = True
+
+    CSRF_COOKIE_SECURE = True

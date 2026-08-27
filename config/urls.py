@@ -3,40 +3,49 @@ from django.urls import path, include
 from django.http import JsonResponse
 
 from accounts.views import login_view, logout_view
-from app.views import dashboard
+from app.views import dashboard, iit_project
 
-
-# ============================================================
-# HEALTH CHECK
-# ============================================================
 
 def health_check(request):
     return JsonResponse({"status": "ok"})
 
-
-# ============================================================
-# URL PATTERNS
-# ============================================================
 
 urlpatterns = [
 
     # Admin
     path("admin/", admin.site.urls),
 
-    # Stock Management
+    # Stock System
     path("stock/", include("stock.urls")),
 
-    # Authentication
+    # Attendance System
+    path("attendance/", include("attendance.urls")),
+
+    # Login / Logout
     path("login/", login_view, name="login"),
     path("logout/", logout_view, name="logout"),
 
     # Dashboard
     path("dashboard/", dashboard, name="dashboard"),
 
-    # SnapDeploy health check
-    # IMPORTANT: No trailing slash
-    path("health", health_check, name="health"),
+    # IIT Project
+    path(
+        "iit-project/",
+        iit_project,
+        name="iit_project"
+    ),
 
-    # Root URL
-    path("", login_view, name="home"),
+    # Health Check
+    path(
+        "health",
+        health_check,
+        name="health"
+    ),
+
+    # Home
+    path(
+        "",
+        login_view,
+        name="home"
+    ),
 ]

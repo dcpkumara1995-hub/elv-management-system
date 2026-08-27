@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,187 +6,139 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>Stock Reports - ELV Management System</title>
-
+    <title>Stock Report</title>
 
     <style>
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
         }
 
-
         body {
+            font-family: Arial, sans-serif;
             background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
             color: #333;
         }
 
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
 
-        .header {
-
-            background: #1f2937;
-
-            color: white;
-
-            padding: 18px 30px;
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
+            box-shadow:
+                0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
+        /* BACK BUTTON */
 
-        .header h1 {
-            font-size: 22px;
-        }
+        .back {
+            display: inline-block;
 
+            margin-bottom: 20px;
 
-        .dashboard {
+            padding: 10px 18px;
+
+            background: #4b5563;
 
             color: white;
 
             text-decoration: none;
 
-            background: #2563eb;
-
-            padding: 9px 16px;
-
             border-radius: 6px;
+
+            font-size: 15px;
         }
 
-
-        .container {
-
-            max-width: 1200px;
-
-            margin: 40px auto;
-
-            padding: 0 20px;
+        .back:hover {
+            background: #374151;
         }
 
-
-        .title {
-
+        h1 {
+            margin-top: 0;
             margin-bottom: 25px;
         }
 
-
-        .title h2 {
-
-            font-size: 28px;
-
-            margin-bottom: 8px;
-        }
-
-
-        .title p {
-
-            color: #666;
-        }
-
+        /* TABLE */
 
         .table-container {
-
-            background: white;
-
-            border-radius: 10px;
-
-            padding: 20px;
-
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-
             overflow-x: auto;
         }
 
-
         table {
-
             width: 100%;
 
             border-collapse: collapse;
+
+            background: white;
         }
 
+        th,
+        td {
+            padding: 12px;
+
+            text-align: left;
+
+            border-bottom: 1px solid #ddd;
+        }
 
         th {
-
             background: #1f2937;
 
             color: white;
-
-            padding: 14px;
-
-            text-align: left;
         }
-
-
-        td {
-
-            padding: 14px;
-
-            border-bottom: 1px solid #e5e7eb;
-        }
-
 
         tr:hover {
-
             background: #f9fafb;
         }
 
-
-        .stock-in {
-
-            color: #16a34a;
+        .in {
+            color: #15803d;
 
             font-weight: bold;
         }
 
-
-        .stock-out {
-
+        .out {
             color: #dc2626;
 
             font-weight: bold;
         }
 
-
         .empty {
-
             text-align: center;
 
-            padding: 40px;
+            padding: 30px;
 
             color: #777;
         }
 
+        @media (max-width: 600px) {
 
-        .update-button {
+            body {
+                padding: 10px;
+            }
 
-            display: inline-block;
+            .container {
+                margin: 10px auto;
 
-            margin-top: 20px;
+                padding: 20px;
+            }
 
-            background: #2563eb;
+            th,
+            td {
+                padding: 9px;
 
-            color: white;
+                font-size: 13px;
+            }
 
-            padding: 11px 18px;
-
-            border-radius: 6px;
-
-            text-decoration: none;
-        }
-
-
-        .update-button:hover {
-
-            background: #1d4ed8;
         }
 
     </style>
@@ -196,191 +149,126 @@
 <body>
 
 
-    <div class="header">
-
-        <h1>ELV Management System</h1>
-
-        <a href="{% url 'dashboard' %}" class="dashboard">
-
-            Dashboard
-
-        </a>
-
-    </div>
+<div class="container">
 
 
+    <!-- BACK TO IIT PROJECT -->
 
-    <div class="container">
-
-
-        <div class="title">
-
-            <h2>Stock Reports</h2>
-
-            <p>Stock movement history</p>
-
-        </div>
+    <a
+        href="{% url 'iit_project' %}"
+        class="back"
+    >
+        ← Back to IIT Project
+    </a>
 
 
-
-        <div class="table-container">
-
-
-            {% if movements %}
+    <h1>
+        Stock Report
+    </h1>
 
 
-            <table>
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Date
+                    </th>
+
+                    <th>
+                        Item
+                    </th>
+
+                    <th>
+                        Type
+                    </th>
+
+                    <th>
+                        Quantity
+                    </th>
+
+                    <th>
+                        Note
+                    </th>
+
+                </tr>
+
+            </thead>
 
 
-                <thead>
+            <tbody>
 
-                    <tr>
-
-                        <th>Date & Time</th>
-
-                        <th>Item</th>
-
-                        <th>Category</th>
-
-                        <th>Type</th>
-
-                        <th>Quantity</th>
-
-                        <th>Unit</th>
-
-                        <th>Note</th>
-
-                    </tr>
-
-                </thead>
-
-
-
-                <tbody>
-
-
-                    {% for movement in movements %}
-
+                {% for movement in movements %}
 
                     <tr>
-
 
                         <td>
-
                             {{ movement.created_at|date:"Y-m-d H:i" }}
-
                         </td>
 
-
                         <td>
-
-                            <strong>
-
-                                {{ movement.item.name }}
-
-                            </strong>
-
+                            {{ movement.item.name }}
                         </td>
 
-
                         <td>
-
-                            {{ movement.item.category|default:"-" }}
-
-                        </td>
-
-
-                        <td>
-
 
                             {% if movement.movement_type == "IN" %}
 
-                                <span class="stock-in">
-
+                                <span class="in">
                                     STOCK IN
-
                                 </span>
 
                             {% else %}
 
-                                <span class="stock-out">
-
+                                <span class="out">
                                     STOCK OUT
-
                                 </span>
 
                             {% endif %}
 
-
                         </td>
 
-
                         <td>
-
                             {{ movement.quantity }}
-
-                        </td>
-
-
-                        <td>
-
                             {{ movement.item.unit }}
-
                         </td>
-
 
                         <td>
-
-                            {{ movement.note|default:"-" }}
-
+                            {{ movement.note }}
                         </td>
-
 
                     </tr>
 
+                {% empty %}
 
-                    {% endfor %}
+                    <tr>
 
+                        <td
+                            colspan="5"
+                            class="empty"
+                        >
+                            No stock movements available.
+                        </td>
 
-                </tbody>
+                    </tr>
 
+                {% endfor %}
 
-            </table>
+            </tbody>
 
-
-            {% else %}
-
-
-                <div class="empty">
-
-                    <h3>No stock movements found</h3>
-
-                    <p>
-
-                        Stock IN or OUT records will appear here.
-
-                    </p>
-
-                </div>
-
-
-            {% endif %}
-
-
-        </div>
-
-
-
-        <a href="{% url 'stock_update' %}" class="update-button">
-
-            Update Stock
-
-        </a>
-
+        </table>
 
     </div>
+
+
+</div>
 
 
 </body>
 
 </html>
+```

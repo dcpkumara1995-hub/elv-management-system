@@ -1,0 +1,158 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance - ELV Management System</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            display: block;
+            background: white;
+            padding: 22px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #222;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card:hover {
+            background: #f0f4ff;
+        }
+
+        .icon {
+            font-size: 35px;
+            float: left;
+            margin-right: 15px;
+        }
+
+        .name {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .description {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .clear {
+            clear: both;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a class="back" href="/iit-project/">
+        ← Back to IIT Project
+    </a>
+
+    <h1>Attendance</h1>
+
+    <div class="subtitle">
+        Select employee category
+    </div>
+
+
+    <!-- Chamara -->
+    <a class="card" href="{% url 'employee_attendance' %}">
+        <div class="icon">👨‍💻</div>
+
+        <div class="name">
+            Chamara Pushpakumara
+        </div>
+
+        <div class="description">
+            Attendance for multiple projects
+        </div>
+
+        <div class="clear"></div>
+    </a>
+
+
+    <!-- Nimalka -->
+    <a class="card" href="{% url 'nimalka_attendance' %}">
+        <div class="icon">👷</div>
+
+        <div class="name">
+            Nimalka
+        </div>
+
+        <div class="description">
+            Supervisor - IIT Project
+        </div>
+
+        <div class="clear"></div>
+    </a>
+
+
+    <!-- Labour -->
+    <a class="card" href="{% url 'labour_attendance' %}">
+        <div class="icon">👷‍♂️</div>
+
+        <div class="name">
+            Labour
+        </div>
+
+        <div class="description">
+            Labour attendance list
+        </div>
+
+        <div class="clear"></div>
+    </a>
+
+
+    <!-- Attendance History -->
+    <a class="card" href="{% url 'attendance_history' %}">
+        <div class="icon">📋</div>
+
+        <div class="name">
+            Attendance History
+        </div>
+
+        <div class="description">
+            View previous attendance records
+        </div>
+
+        <div class="clear"></div>
+    </a>
+
+</div>
+
+</body>
+</html>
+```

@@ -1,0 +1,424 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance History - ELV Management System</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .filter-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        .buttons {
+            margin-top: 18px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button,
+        .button {
+            border: none;
+            padding: 11px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .search {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .pdf {
+            background: #dc3545;
+            color: white;
+        }
+
+        .clear {
+            background: #6c757d;
+            color: white;
+        }
+
+        .summary {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .table-box {
+            background: white;
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th {
+            background: #212529;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 11px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .worked {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        .not-worked {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+
+        @media (max-width: 800px) {
+            .filter-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="top">
+        <a class="back" href="{% url 'attendance_home' %}">
+            ← Back to Attendance
+        </a>
+    </div>
+
+    <h1>Attendance History</h1>
+
+    <div class="subtitle">
+        View previous attendance records
+    </div>
+
+    <div class="filter-box">
+
+        <form method="GET">
+
+            <div class="filter-grid">
+
+                <div>
+                    <label>From Date</label>
+
+                    <input
+                        type="date"
+                        name="from_date"
+                        value="{{ from_date }}"
+                    >
+                </div>
+
+                <div>
+                    <label>To Date</label>
+
+                    <input
+                        type="date"
+                        name="to_date"
+                        value="{{ to_date }}"
+                    >
+                </div>
+
+                <div>
+                    <label>Employee</label>
+
+                    <select name="employee">
+
+                        <option value="">
+                            All Employees
+                        </option>
+
+                        {% for employee in employees %}
+
+                        <option
+                            value="{{ employee.id }}"
+                            {% if selected_employee == employee.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ employee.name }}
+                            - {{ employee.get_role_display }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div>
+                    <label>Status</label>
+
+                    <select name="status">
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option
+                            value="WORKED"
+                            {% if selected_status == "WORKED" %}
+                                selected
+                            {% endif %}
+                        >
+                            Present
+                        </option>
+
+                        <option
+                            value="NOT_WORKED"
+                            {% if selected_status == "NOT_WORKED" %}
+                                selected
+                            {% endif %}
+                        >
+                            Absent
+                        </option>
+
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="buttons">
+
+                <button
+                    type="submit"
+                    class="search"
+                >
+                    🔍 Search
+                </button>
+
+                <a
+                    class="button clear"
+                    href="{% url 'attendance_history' %}"
+                >
+                    Clear Filters
+                </a>
+
+                <button
+                    type="submit"
+                    class="pdf"
+                    formaction="{% url 'attendance_pdf' %}"
+                    formmethod="get"
+                >
+                    📄 Download PDF
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="summary">
+
+        Records found:
+        <strong>{{ records|length }}</strong>
+
+    </div>
+
+    <div class="table-box">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Date</th>
+                    <th>Employee</th>
+                    <th>Role</th>
+                    <th>Project</th>
+                    <th>Status</th>
+                    <th>Note</th>
+                    <th>Time</th>
+                    <th>Updated By</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for record in records %}
+
+                <tr>
+
+                    <td>
+                        {{ record.date|date:"Y-m-d" }}
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ record.employee.name }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ record.employee.get_role_display }}
+                    </td>
+
+                    <td>
+                        {{ record.project }}
+                    </td>
+
+                    <td>
+
+                        {% if record.status == "WORKED" %}
+
+                            <span class="worked">
+                                ✓ Present
+                            </span>
+
+                        {% else %}
+
+                            <span class="not-worked">
+                                ✗ Absent
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ record.note|default:"-" }}
+                    </td>
+
+                    <td>
+                        {{ record.updated_at|date:"Y-m-d H:i" }}
+                    </td>
+
+                    <td>
+
+                        {% if record.updated_by %}
+                            {{ record.updated_by.username }}
+                        {% else %}
+                            -
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td
+                        colspan="8"
+                        class="empty"
+                    >
+                        No attendance records found.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+```
