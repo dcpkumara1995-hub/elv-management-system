@@ -36,12 +36,11 @@ urlpatterns = [
     ),
 
     # Health Check
-    path(
-        "health",
-        health_check,
-        name="health"
-    ),
-
+path(
+    "health/",
+    health_check,
+    name="health"
+),
     # Home
     path(
         "",
