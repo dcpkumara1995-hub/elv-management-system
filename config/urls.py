@@ -13,20 +13,42 @@ def health_check(request):
 urlpatterns = [
 
     # Admin
-    path("admin/", admin.site.urls),
+    path(
+        "admin/",
+        admin.site.urls
+    ),
 
     # Stock System
-    path("stock/", include("stock.urls")),
+    path(
+        "stock/",
+        include("stock.urls")
+    ),
 
     # Attendance System
-    path("attendance/", include("attendance.urls")),
+    path(
+        "attendance/",
+        include("attendance.urls")
+    ),
 
     # Login / Logout
-    path("login/", login_view, name="login"),
-    path("logout/", logout_view, name="logout"),
+    path(
+        "login/",
+        login_view,
+        name="login"
+    ),
+
+    path(
+        "logout/",
+        logout_view,
+        name="logout"
+    ),
 
     # Dashboard
-    path("dashboard/", dashboard, name="dashboard"),
+    path(
+        "dashboard/",
+        dashboard,
+        name="dashboard"
+    ),
 
     # IIT Project
     path(
@@ -36,11 +58,12 @@ urlpatterns = [
     ),
 
     # Health Check
-path(
-    "health/",
-    health_check,
-    name="health"
-),
+    path(
+        "health/",
+        health_check,
+        name="health"
+    ),
+
     # Home
     path(
         "",
