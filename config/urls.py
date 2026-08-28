@@ -11,26 +11,21 @@ def health_check(request):
 
 
 urlpatterns = [
-
-    # Admin
     path(
         "admin/",
         admin.site.urls
     ),
 
-    # Stock System
     path(
         "stock/",
         include("stock.urls")
     ),
 
-    # Attendance System
     path(
         "attendance/",
         include("attendance.urls")
     ),
 
-    # Login / Logout
     path(
         "login/",
         login_view,
@@ -43,28 +38,30 @@ urlpatterns = [
         name="logout"
     ),
 
-    # Dashboard
     path(
         "dashboard/",
         dashboard,
         name="dashboard"
     ),
 
-    # IIT Project
     path(
         "iit-project/",
         iit_project,
         name="iit_project"
     ),
 
-    # Health Check
     path(
         "health/",
         health_check,
         name="health"
     ),
 
-    # Home
+    path(
+        "health",
+        health_check,
+        name="health_no_slash"
+    ),
+
     path(
         "",
         login_view,
