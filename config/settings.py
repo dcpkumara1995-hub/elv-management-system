@@ -1,4 +1,3 @@
-```python
 from pathlib import Path
 import os
 
@@ -6,7 +5,16 @@ import dj_database_url
 from dotenv import load_dotenv
 
 
+# =========================================================
+# BASE DIRECTORY
+# =========================================================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# =========================================================
+# ENVIRONMENT VARIABLES
+# =========================================================
 
 load_dotenv(BASE_DIR / ".env")
 
@@ -20,9 +28,19 @@ SECRET_KEY = os.environ.get(
     "django-insecure-change-this-in-production"
 )
 
-DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+
+DEBUG = os.environ.get(
+    "DEBUG",
+    "False"
+).lower() == "true"
+
 
 ALLOWED_HOSTS = ["*"]
+
+
+# =========================================================
+# CSRF
+# =========================================================
 
 CSRF_TRUSTED_ORIGINS = [
     "https://elv-management-system-v3-efca6.containers.snapdeploy.app",
@@ -118,6 +136,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
+
 if DATABASE_URL:
 
     DATABASES = {
@@ -174,7 +193,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # =========================================================
-# INTERNATIONALIZATION
+# LANGUAGE / TIME
 # =========================================================
 
 LANGUAGE_CODE = "en-us"
@@ -215,4 +234,30 @@ LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 
 LOGOUT_REDIRECT_URL = "/login/"
-```
+
+
+# =========================================================
+# PROXY / HTTPS
+# =========================================================
+
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    "https",
+)
+
+
+# =========================================================
+# COOKIE SETTINGS
+# =========================================================
+
+if not DEBUG:
+
+    SESSION_COOKIE_SECURE = True
+
+    CSRF_COOKIE_SECURE = True
+
+else:
+
+    SESSION_COOKIE_SECURE = False
+
+    CSRF_COOKIE_SECURE = False
