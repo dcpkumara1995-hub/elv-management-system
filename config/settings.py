@@ -28,12 +28,10 @@ SECRET_KEY = os.environ.get(
     "django-insecure-change-this-in-production"
 )
 
-
 DEBUG = os.environ.get(
     "DEBUG",
     "False"
 ).lower() == "true"
-
 
 ALLOWED_HOSTS = ["*"]
 
@@ -136,8 +134,22 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
+# =========================================================
+# LOCAL PC
+# =========================================================
+# If USE_POSTGRES is not true,
+# Django uses local SQLite database.
+#
+# This prevents the PC from trying to connect
+# to the production PostgreSQL database.
+# =========================================================
 
-if DATABASE_URL:
+if os.environ.get("USE_POSTGRES", "").lower() == "true":
+
+    if not DATABASE_URL:
+        raise RuntimeError(
+            "USE_POSTGRES=true but DATABASE_URL is not configured."
+        )
 
     DATABASES = {
         "default": dj_database_url.parse(
