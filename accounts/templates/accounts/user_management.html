@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>User Management</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .header {
+            background: #212529;
+            color: white;
+            padding: 20px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            margin: 0 0 6px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 11px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #222;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-success {
+            background: #198754;
+            color: white;
+        }
+
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .users-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th {
+            background: #f1f3f5;
+            text-align: left;
+            padding: 13px;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 13px;
+            border-top: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .username {
+            font-weight: bold;
+        }
+
+        .role {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .active {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .inactive {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .superuser {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .actions form {
+            margin: 0;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #888;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 18px;
+            }
+
+            .users-card {
+                padding: 12px;
+            }
+
+            .top-actions {
+                align-items: stretch;
+            }
+
+            .top-actions .btn {
+                text-align: center;
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h2>
+            👥 User Management
+        </h2>
+
+        <p>
+            Manage system users and their access.
+        </p>
+
+    </div>
+
+
+    <!-- TOP ACTIONS -->
+
+    <div class="top-actions">
+
+        <a
+            href="{% url 'superuser_dashboard' %}"
+            class="btn btn-secondary"
+        >
+            ← Dashboard
+        </a>
+
+        <a
+            href="{% url 'create_user' %}"
+            class="btn btn-primary"
+        >
+            + Create New User
+        </a>
+
+    </div>
+
+
+    <!-- MESSAGES -->
+
+    {% if messages %}
+
+        <div class="messages">
+
+            {% for message in messages %}
+
+                <div class="message">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- USERS -->
+
+    <div class="users-card">
+
+        {% if users %}
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Username
+                        </th>
+
+                        <th>
+                            Name
+                        </th>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for user in users %}
+
+                        <tr>
+
+                            <td>
+
+                                <div class="username">
+                                    {{ user.username }}
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                {% if user.get_full_name %}
+
+                                    {{ user.get_full_name }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if user.is_superuser %}
+
+                                    <span class="status superuser">
+                                        Super User
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="role">
+                                        Normal User
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if user.is_active %}
+
+                                    <span class="status active">
+                                        Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status inactive">
+                                        Inactive
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="actions">
+
+
+                                    {% if not user.is_superuser %}
+
+                                        <a
+                                            href="{% url 'edit_user' user.id %}"
+                                            class="btn btn-warning"
+                                        >
+                                            Edit
+                                        </a>
+
+
+                                        <a
+                                            href="{% url 'reset_user_password' user.id %}"
+                                            class="btn btn-primary"
+                                        >
+                                            Password
+                                        </a>
+
+
+                                        {% if user.is_active %}
+
+                                            <form
+                                                method="POST"
+                                                action="{% url 'toggle_user' user.id %}"
+                                                onsubmit="return confirm('Deactivate this user?');"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-danger"
+                                                >
+                                                    Deactivate
+                                                </button>
+
+                                            </form>
+
+                                        {% else %}
+
+                                            <form
+                                                method="POST"
+                                                action="{% url 'toggle_user' user.id %}"
+                                                onsubmit="return confirm('Activate this user?');"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-success"
+                                                >
+                                                    Activate
+                                                </button>
+
+                                            </form>
+
+                                        {% endif %}
+
+
+                                    {% else %}
+
+                                        <span class="role">
+                                            Protected
+                                        </span>
+
+                                    {% endif %}
+
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <div class="empty">
+
+                No users found.
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="footer">
+
+        ELV Management System
+        &copy; 2026
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

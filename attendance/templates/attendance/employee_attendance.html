@@ -1,16 +1,12 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
 
-    <title>Nimalka Attendance</title>
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1"
-    >
+    <title>Chamara Attendance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
-
         body {
             font-family: Arial, sans-serif;
             background: #f4f6f8;
@@ -38,9 +34,7 @@
             margin-top: 5px;
         }
 
-        input,
-        select,
-        button {
+        input, select, button {
             width: 100%;
             padding: 12px;
             margin-top: 8px;
@@ -52,7 +46,7 @@
         }
 
         button {
-            background: #0d6efd;
+            background: #198754;
             color: white;
             border: none;
             font-weight: bold;
@@ -60,7 +54,7 @@
         }
 
         button:hover {
-            background: #0b5ed7;
+            background: #157347;
         }
 
         .back {
@@ -79,74 +73,50 @@
             color: #0f5132;
         }
 
-        .project-info {
-            padding: 12px;
-            margin-bottom: 18px;
-            border-radius: 8px;
-            background: #e7f1ff;
-            color: #084298;
-            font-size: 14px;
+        .project-section {
+            display: block;
         }
 
+        .info {
+            font-size: 13px;
+            color: #666;
+            margin-top: -10px;
+            margin-bottom: 18px;
+        }
     </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
-    <h2>👷 Nimalka Attendance</h2>
-
+    <h2>👨‍💻 Chamara Attendance</h2>
 
     {% if messages %}
-
         {% for message in messages %}
-
             <div class="message">
                 {{ message }}
             </div>
-
         {% endfor %}
-
     {% endif %}
 
-
-    <div class="project-info">
-
-        <strong>Project:</strong> IIT Project
-
-        <br>
-
-        Nimalka is assigned to IIT Project.
-
-    </div>
-
-
     <form method="POST">
-
         {% csrf_token %}
-
 
         <label>Date</label>
 
         <input
             type="date"
             name="attendance_date"
+            value="{{ today|date:'Y-m-d' }}"
             required
         >
-
 
         <label>Attendance</label>
 
-        <select
-            name="worked"
-            required
-        >
+        <select name="worked" id="worked" required onchange="attendanceChanged()">
 
-            <option value="">
-                Select Attendance
-            </option>
+            <option value="">Select Attendance</option>
 
             <option value="Present">
                 Present
@@ -162,6 +132,31 @@
 
         </select>
 
+        <div id="projectSection" class="project-section">
+
+            <label>Project</label>
+
+            <select name="project" id="project">
+
+                <option value="">
+                    Select Project
+                </option>
+
+                <option value="IIT Project">
+                    IIT Project
+                </option>
+
+                <option value="Other Project">
+                    Other Project
+                </option>
+
+            </select>
+
+            <div class="info">
+                Project is required for Present / Half Day.
+            </div>
+
+        </div>
 
         <button type="submit">
             Save Attendance
@@ -169,15 +164,49 @@
 
     </form>
 
-
-    <a
-        class="back"
-        href="/attendance/"
-    >
+    <a class="back" href="/attendance/">
         ← Back to Attendance
     </a>
 
 </div>
 
+
+<script>
+
+function attendanceChanged() {
+
+    const attendance = document.getElementById("worked").value;
+
+    const projectSection =
+        document.getElementById("projectSection");
+
+    const project =
+        document.getElementById("project");
+
+
+    if (attendance === "Absent") {
+
+        // Absent = no project required
+
+        projectSection.style.display = "none";
+
+        project.required = false;
+
+        project.value = "";
+
+    } else {
+
+        // Present / Half Day = project required
+
+        projectSection.style.display = "block";
+
+        project.required = true;
+
+    }
+}
+
+</script>
+
 </body>
 </html>
+```

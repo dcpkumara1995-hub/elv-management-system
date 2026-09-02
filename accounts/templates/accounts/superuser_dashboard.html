@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Super User Dashboard</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .header {
+            background: #212529;
+            color: white;
+            padding: 18px 20px;
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .user-info {
+            font-size: 14px;
+            color: #ddd;
+            text-align: right;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .welcome h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            margin-bottom: 0;
+            color: #666;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(220px, 1fr)
+            );
+            gap: 18px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            text-decoration: none;
+            color: #222;
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .card h3 {
+            margin: 0 0 8px;
+            font-size: 19px;
+        }
+
+        .card p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .user-card {
+            border-left: 5px solid #0d6efd;
+        }
+
+        .stock-card {
+            border-left: 5px solid #198754;
+        }
+
+        .attendance-card {
+            border-left: 5px solid #fd7e14;
+        }
+
+        .report-card {
+            border-left: 5px solid #6f42c1;
+        }
+
+        .password-card {
+            border-left: 5px solid #dc3545;
+        }
+
+        .logout-card {
+            border-left: 5px solid #6c757d;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 35px;
+            padding-bottom: 25px;
+            color: #888;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+
+            .header-inner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .user-info {
+                text-align: left;
+            }
+
+            .container {
+                margin-top: 20px;
+            }
+
+            .welcome {
+                padding: 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+<header class="header">
+
+    <div class="header-inner">
+
+        <div class="title">
+            👑 ELV Management System
+        </div>
+
+        <div class="user-info">
+
+            Logged in as:
+            <strong>
+                {{ request.user.username }}
+            </strong>
+
+            <br>
+
+            Super User
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+    <section class="welcome">
+
+        <h2>
+            👋 Welcome, {{ request.user.username }}
+        </h2>
+
+        <p>
+            Super User Control Panel
+        </p>
+
+    </section>
+
+
+    <section class="cards">
+
+
+        <!-- USER MANAGEMENT -->
+
+        <a
+            class="card user-card"
+            href="{% url 'user_management' %}"
+        >
+
+            <div class="icon">
+                👥
+            </div>
+
+            <h3>
+                User Management
+            </h3>
+
+            <p>
+                Create users, edit users,
+                change passwords and
+                activate or deactivate accounts.
+            </p>
+
+        </a>
+
+
+        <!-- STOCK -->
+
+        <a
+            class="card stock-card"
+            href="/stock/"
+        >
+
+            <div class="icon">
+                📦
+            </div>
+
+            <h3>
+                Stock Management
+            </h3>
+
+            <p>
+                Manage stock, update quantities
+                and view current stock.
+            </p>
+
+        </a>
+
+
+        <!-- ATTENDANCE -->
+
+        <a
+            class="card attendance-card"
+            href="/attendance/"
+        >
+
+            <div class="icon">
+                📋
+            </div>
+
+            <h3>
+                Attendance
+            </h3>
+
+            <p>
+                Manage employee and labour
+                attendance records.
+            </p>
+
+        </a>
+
+
+        <!-- REPORTS -->
+
+        <a
+            class="card report-card"
+            href="/attendance/history/"
+        >
+
+            <div class="icon">
+                📊
+            </div>
+
+            <h3>
+                Reports
+            </h3>
+
+            <p>
+                View attendance history
+                and reports.
+            </p>
+
+        </a>
+
+
+        <!-- CHANGE PASSWORD -->
+
+        <a
+            class="card password-card"
+            href="{% url 'change_password' %}"
+        >
+
+            <div class="icon">
+                🔑
+            </div>
+
+            <h3>
+                Change My Password
+            </h3>
+
+            <p>
+                Change your own login
+                password securely.
+            </p>
+
+        </a>
+
+
+        <!-- LOGOUT -->
+
+        <a
+            class="card logout-card"
+            href="{% url 'logout' %}"
+        >
+
+            <div class="icon">
+                🚪
+            </div>
+
+            <h3>
+                Logout
+            </h3>
+
+            <p>
+                Sign out from the
+                ELV Management System.
+            </p>
+
+        </a>
+
+
+    </section>
+
+
+    <div class="footer">
+
+        ELV Management System
+        &copy; 2026
+
+    </div>
+
+
+</main>
+
+</body>
+
+</html>

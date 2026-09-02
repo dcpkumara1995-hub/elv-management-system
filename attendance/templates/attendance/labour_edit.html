@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Edit Labour</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 18px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #0d6efd;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0b5ed7;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 18px;
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .info {
+            background: #e7f1ff;
+            color: #084298;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h2>✏️ Edit Labour</h2>
+
+    <div class="info">
+        You are editing the labour employee name.
+    </div>
+
+    <form
+        method="POST"
+        action="{% url 'labour_edit' labour.id %}"
+    >
+
+        {% csrf_token %}
+
+        <label>
+            Labour Name
+        </label>
+
+        <input
+            type="text"
+            name="name"
+            value="{{ labour.name }}"
+            maxlength="200"
+            required
+            autofocus
+        >
+
+        <button type="submit">
+            💾 Save Changes
+        </button>
+
+    </form>
+
+
+    <a
+        class="back"
+        href="{% url 'labour_management' %}"
+    >
+        ← Back to Labour Management
+    </a>
+
+</div>
+
+</body>
+
+</html>

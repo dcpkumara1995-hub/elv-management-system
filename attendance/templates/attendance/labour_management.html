@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Labour Management</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .admin-badge {
+            text-align: center;
+            background: #e7f1ff;
+            color: #084298;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .add-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .add-box h3 {
+            margin-top: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        button {
+            border: none;
+            border-radius: 7px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .add-btn {
+            width: 100%;
+            background: #198754;
+            color: white;
+            font-size: 16px;
+        }
+
+        .add-btn:hover {
+            background: #157347;
+        }
+
+        .labour-list {
+            margin-top: 10px;
+        }
+
+        .labour-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: white;
+        }
+
+        .labour-info {
+            flex: 1;
+        }
+
+        .labour-name {
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .active {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .inactive {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .edit-btn {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #0b5ed7;
+        }
+
+        .deactivate-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .deactivate-btn:hover {
+            background: #bb2d3b;
+        }
+
+        .activate-btn {
+            background: #198754;
+            color: white;
+        }
+
+        .activate-btn:hover {
+            background: #157347;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 18px;
+            }
+
+            .labour-item {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .actions {
+                width: 100%;
+            }
+
+            .actions form,
+            .actions a {
+                flex: 1;
+            }
+
+            .actions button,
+            .actions a {
+                width: 100%;
+                text-align: center;
+                text-decoration: none;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h2>👷 Labour Management</h2>
+
+    <div class="admin-badge">
+        🔐 Super Admin Only
+    </div>
+
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div
+                class="message {% if message.tags == 'error' %}error{% endif %}"
+            >
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <!-- ============================================= -->
+    <!-- ADD LABOUR -->
+    <!-- ============================================= -->
+
+    <div class="add-box">
+
+        <h3>➕ Add New Labour</h3>
+
+        <form
+            method="POST"
+            action="{% url 'labour_add' %}"
+        >
+
+            {% csrf_token %}
+
+            <label>
+                Labour Name
+            </label>
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Enter labour name"
+                required
+                maxlength="200"
+            >
+
+            <button
+                type="submit"
+                class="add-btn"
+            >
+                Add Labour
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- ============================================= -->
+    <!-- LABOUR LIST -->
+    <!-- ============================================= -->
+
+    <h3>
+        Labour List
+    </h3>
+
+    <div class="labour-list">
+
+        {% if labour_list %}
+
+            {% for labour in labour_list %}
+
+                <div class="labour-item">
+
+                    <div class="labour-info">
+
+                        <div class="labour-name">
+                            👷 {{ labour.name }}
+                        </div>
+
+                        {% if labour.active %}
+
+                            <span class="status active">
+                                ACTIVE
+                            </span>
+
+                        {% else %}
+
+                            <span class="status inactive">
+                                INACTIVE
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="actions">
+
+                        <!-- EDIT -->
+
+                        <a
+                            href="{% url 'labour_edit' labour.id %}"
+                            class="edit-btn"
+                        >
+                            ✏️ Edit
+                        </a>
+
+
+                        <!-- ACTIVATE / DEACTIVATE -->
+
+                        <form
+                            method="POST"
+                            action="{% url 'labour_toggle' labour.id %}"
+                            onsubmit="return confirmToggle(
+                                '{{ labour.name|escapejs }}',
+                                {{ labour.active|yesno:'true,false' }}
+                            );"
+                        >
+
+                            {% csrf_token %}
+
+                            {% if labour.active %}
+
+                                <button
+                                    type="submit"
+                                    class="deactivate-btn"
+                                >
+                                    🔴 Deactivate
+                                </button>
+
+                            {% else %}
+
+                                <button
+                                    type="submit"
+                                    class="activate-btn"
+                                >
+                                    🟢 Activate
+                                </button>
+
+                            {% endif %}
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty">
+
+                No labour employees found.
+
+                <br><br>
+
+                Use "Add New Labour" above to add one.
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <a
+        class="back"
+        href="{% url 'attendance_home' %}"
+    >
+        ← Back to Attendance
+    </a>
+
+</div>
+
+
+<script>
+
+function confirmToggle(name, isActive) {
+
+    if (isActive) {
+
+        return confirm(
+            "Are you sure you want to deactivate " +
+            name +
+            "?"
+        );
+
+    }
+
+    return confirm(
+        "Do you want to activate " +
+        name +
+        " again?"
+    );
+}
+
+</script>
+
+</body>
+
+</html>

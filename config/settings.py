@@ -5,16 +5,7 @@ import dj_database_url
 from dotenv import load_dotenv
 
 
-# =========================================================
-# BASE DIRECTORY
-# =========================================================
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# =========================================================
-# ENVIRONMENT VARIABLES
-# =========================================================
 
 load_dotenv(BASE_DIR / ".env")
 
@@ -28,10 +19,7 @@ SECRET_KEY = os.environ.get(
     "django-insecure-change-this-in-production"
 )
 
-DEBUG = os.environ.get(
-    "DEBUG",
-    "False"
-).lower() == "true"
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -41,6 +29,9 @@ ALLOWED_HOSTS = ["*"]
 # =========================================================
 
 CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "http://192.168.8.101:8000",
     "https://elv-management-system-v3-efca6.containers.snapdeploy.app",
 ]
 
@@ -88,7 +79,7 @@ MIDDLEWARE = [
 
 
 # =========================================================
-# URL CONFIGURATION
+# URL
 # =========================================================
 
 ROOT_URLCONF = "config.urls"
@@ -134,22 +125,8 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
-# =========================================================
-# LOCAL PC
-# =========================================================
-# If USE_POSTGRES is not true,
-# Django uses local SQLite database.
-#
-# This prevents the PC from trying to connect
-# to the production PostgreSQL database.
-# =========================================================
 
-if os.environ.get("USE_POSTGRES", "").lower() == "true":
-
-    if not DATABASE_URL:
-        raise RuntimeError(
-            "USE_POSTGRES=true but DATABASE_URL is not configured."
-        )
+if DATABASE_URL:
 
     DATABASES = {
         "default": dj_database_url.parse(
@@ -180,21 +157,18 @@ AUTH_PASSWORD_VALIDATORS = [
             "UserAttributeSimilarityValidator"
         ),
     },
-
     {
         "NAME": (
             "django.contrib.auth.password_validation."
             "MinimumLengthValidator"
         ),
     },
-
     {
         "NAME": (
             "django.contrib.auth.password_validation."
             "CommonPasswordValidator"
         ),
     },
-
     {
         "NAME": (
             "django.contrib.auth.password_validation."
@@ -246,30 +220,3 @@ LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 
 LOGOUT_REDIRECT_URL = "/login/"
-
-
-# =========================================================
-# PROXY / HTTPS
-# =========================================================
-
-SECURE_PROXY_SSL_HEADER = (
-    "HTTP_X_FORWARDED_PROTO",
-    "https",
-)
-
-
-# =========================================================
-# COOKIE SETTINGS
-# =========================================================
-
-if not DEBUG:
-
-    SESSION_COOKIE_SECURE = True
-
-    CSRF_COOKIE_SECURE = True
-
-else:
-
-    SESSION_COOKIE_SECURE = False
-
-    CSRF_COOKIE_SECURE = False

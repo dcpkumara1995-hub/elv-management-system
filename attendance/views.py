@@ -1,23 +1,11 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .models import Employee, Attendance
-
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4, landscape
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.enums import TA_CENTER
-from reportlab.platypus import (
-    SimpleDocTemplate,
-    Table,
-    TableStyle,
-    Paragraph,
-    Spacer
-)
-from reportlab.lib.units import mm
+from .models import Attendance, Employee
 
 
 # =========================================================
@@ -29,7 +17,7 @@ def attendance_home(request):
 
     return render(
         request,
-        'attendance/attendance_home.html'
+        "attendance/attendance_home.html"
     )
 
 
@@ -40,151 +28,135 @@ def attendance_home(request):
 @login_required
 def employee_attendance(request):
 
-    # Find Chamara
     employee = Employee.objects.filter(
-        name__icontains='Chamara'
+        name__icontains="Chamara",
+        active=True
     ).first()
 
     if not employee:
         messages.error(
             request,
-            'Chamara employee record was not found.'
+            "Chamara employee record not found."
         )
 
-        return render(
-            request,
-            'attendance/chamara_attendance.html'
-        )
+        return redirect("attendance_home")
 
-    if request.method == 'POST':
+    if request.method == "POST":
 
         attendance_date = request.POST.get(
-            'attendance_date'
+            "attendance_date"
         )
 
         project = request.POST.get(
-            'project',
-            ''
-        )
+            "project",
+            ""
+        ).strip()
 
         worked = request.POST.get(
-            'worked'
+            "worked"
         )
-
-        # -------------------------------------------------
-        # Validate date
-        # -------------------------------------------------
 
         if not attendance_date:
 
             messages.error(
                 request,
-                'Please select a date.'
+                "Please select a date."
             )
 
             return redirect(
-                'employee_attendance'
+                "employee_attendance"
             )
 
-        # -------------------------------------------------
-        # Convert attendance status
-        # -------------------------------------------------
-
-        if worked == 'Present':
-
-            status = 'WORKED'
-
-        elif worked == 'Absent':
-
-            status = 'NOT_WORKED'
-
-        elif worked == 'Half Day':
-
-            status = 'HALF_DAY'
-
-        else:
+        if worked not in [
+            "Present",
+            "Absent",
+            "Half Day"
+        ]:
 
             messages.error(
                 request,
-                'Please select attendance.'
+                "Please select attendance."
             )
 
             return redirect(
-                'employee_attendance'
+                "employee_attendance"
             )
 
         # -------------------------------------------------
-        # Project validation
+        # STATUS
         # -------------------------------------------------
 
-        if status in ['WORKED', 'HALF_DAY']:
+        if worked == "Present":
 
-            if not project:
+            status = "WORKED"
 
-                messages.error(
-                    request,
-                    'Please select a project.'
-                )
+        elif worked == "Half Day":
 
-                return redirect(
-                    'employee_attendance'
-                )
+            status = "HALF_DAY"
 
         else:
 
-            # Absent does not need project
-            project = ''
+            status = "NOT_WORKED"
+
+            project = ""
 
         # -------------------------------------------------
-        # CREATE / UPDATE ATTENDANCE
+        # PROJECT REQUIRED
         # -------------------------------------------------
 
-        attendance, created = Attendance.objects.update_or_create(
+        if status in [
+            "WORKED",
+            "HALF_DAY"
+        ] and not project:
 
-            employee=employee,
+            messages.error(
+                request,
+                "Please select a project."
+            )
 
-            date=attendance_date,
+            return redirect(
+                "employee_attendance"
+            )
 
-            defaults={
-                'project': project,
-                'status': status,
-                'note': '',
-                'updated_by': request.user,
-            }
+        # -------------------------------------------------
+        # SAVE / UPDATE
+        # -------------------------------------------------
 
+        attendance, created = (
+            Attendance.objects.update_or_create(
+                employee=employee,
+                date=attendance_date,
+                defaults={
+                    "project": project,
+                    "status": status,
+                    "updated_by": request.user,
+                }
+            )
         )
 
-        # If new record
         if created:
 
             attendance.created_by = request.user
             attendance.save(
-                update_fields=['created_by']
+                update_fields=["created_by"]
             )
 
-            messages.success(
-                request,
-                'Attendance saved successfully.'
-            )
-
-        else:
-
-            messages.success(
-                request,
-                'Attendance updated successfully.'
-            )
-
-        return redirect(
-            'attendance_history'
+        messages.success(
+            request,
+            "Chamara attendance saved successfully."
         )
 
-    # -----------------------------------------------------
-    # GET
-    # -----------------------------------------------------
+        return redirect(
+            "attendance_history"
+        )
 
     return render(
         request,
-        'attendance/chamara_attendance.html'
+        "attendance/employee_attendance.html",
+        {
+            "employee": employee,
+            "today": timezone.localdate(),
+        }
     )
 
 
@@ -196,89 +168,90 @@ def employee_attendance(request):
 def nimalka_attendance(request):
 
     employee = Employee.objects.filter(
-        name__icontains='Nimalka'
+        name__icontains="Nimalka",
+        active=True
     ).first()
 
     if not employee:
 
         messages.error(
             request,
-            'Nimalka employee record was not found.'
+            "Nimalka employee record not found."
         )
 
-        return render(
-            request,
-            'attendance/nimalka_attendance.html'
+        return redirect(
+            "attendance_home"
         )
 
-    if request.method == 'POST':
+    if request.method == "POST":
 
         attendance_date = request.POST.get(
-            'attendance_date'
+            "attendance_date"
         )
 
         worked = request.POST.get(
-            'worked'
+            "worked"
         )
 
-        project = request.POST.get(
-            'project',
-            ''
-        )
-
-        if worked == 'Present':
-
-            status = 'WORKED'
-
-        elif worked == 'Absent':
-
-            status = 'NOT_WORKED'
-
-        elif worked == 'Half Day':
-
-            status = 'HALF_DAY'
-
-        else:
+        if not attendance_date:
 
             messages.error(
                 request,
-                'Please select attendance.'
+                "Please select a date."
             )
 
             return redirect(
-                'nimalka_attendance'
+                "nimalka_attendance"
             )
 
-        if status in ['WORKED', 'HALF_DAY']:
+        if worked not in [
+            "Present",
+            "Absent",
+            "Half Day"
+        ]:
 
-            if not project:
+            messages.error(
+                request,
+                "Please select attendance."
+            )
 
-                messages.error(
-                    request,
-                    'Please select a project.'
-                )
+            return redirect(
+                "nimalka_attendance"
+            )
 
-                return redirect(
-                    'nimalka_attendance'
-                )
+        # -------------------------------------------------
+        # STATUS
+        # -------------------------------------------------
+
+        if worked == "Present":
+
+            status = "WORKED"
+            project = "IIT Project"
+
+        elif worked == "Half Day":
+
+            status = "HALF_DAY"
+            project = "IIT Project"
 
         else:
 
-            project = ''
+            status = "NOT_WORKED"
+            project = ""
 
-        attendance, created = Attendance.objects.update_or_create(
+        # -------------------------------------------------
+        # SAVE / UPDATE
+        # -------------------------------------------------
 
-            employee=employee,
-
-            date=attendance_date,
-
-            defaults={
-                'project': project,
-                'status': status,
-                'note': '',
-                'updated_by': request.user,
-            }
-
+        attendance, created = (
+            Attendance.objects.update_or_create(
+                employee=employee,
+                date=attendance_date,
+                defaults={
+                    "project": project,
+                    "status": status,
+                    "updated_by": request.user,
+                }
+            )
         )
 
         if created:
@@ -286,28 +259,25 @@ def nimalka_attendance(request):
             attendance.created_by = request.user
 
             attendance.save(
-                update_fields=['created_by']
+                update_fields=["created_by"]
             )
 
-            messages.success(
-                request,
-                'Nimalka attendance saved successfully.'
-            )
-
-        else:
-
-            messages.success(
-                request,
-                'Nimalka attendance updated successfully.'
-            )
+        messages.success(
+            request,
+            "Nimalka attendance saved successfully."
+        )
 
         return redirect(
-            'attendance_history'
+            "attendance_history"
         )
 
     return render(
         request,
-        'attendance/nimalka_attendance.html'
+        "attendance/nimalka_attendance.html",
+        {
+            "employee": employee,
+            "today": timezone.localdate(),
+        }
     )
 
 
@@ -318,47 +288,346 @@ def nimalka_attendance(request):
 @login_required
 def labour_attendance(request):
 
-    labour_list = [
-        'Labour 01',
-        'Labour 02',
-        'Labour 03',
-        'Labour 04',
-        'Labour 05',
-    ]
+    labour_list = Employee.objects.filter(
+        role="LABOUR",
+        active=True
+    ).order_by("name")
 
-    if request.method == 'POST':
+    if request.method == "POST":
 
         attendance_date = request.POST.get(
-            'attendance_date'
+            "attendance_date"
         )
 
-        attendance_data = {}
+        if not attendance_date:
+
+            messages.error(
+                request,
+                "Please select a date."
+            )
+
+            return redirect(
+                "labour_attendance"
+            )
+
+        if not labour_list.exists():
+
+            messages.error(
+                request,
+                "No active labour employees found."
+            )
+
+            return redirect(
+                "labour_attendance"
+            )
+
+        saved_count = 0
 
         for labour in labour_list:
 
-            value = request.POST.get(
-                labour.replace(' ', '_')
+            field_name = f"labour_{labour.id}"
+
+            worked = request.POST.get(
+                field_name
             )
 
-            attendance_data[labour] = value
+            if worked not in [
+                "Present",
+                "Absent"
+            ]:
 
-        return render(
-            request,
-            'attendance/labour_attendance.html',
-            {
-                'labour_list': labour_list,
-                'attendance_data': attendance_data,
-                'success': True,
-                'attendance_date': attendance_date,
-            }
+                continue
+
+            if worked == "Present":
+
+                status = "WORKED"
+
+            else:
+
+                status = "NOT_WORKED"
+
+            attendance, created = (
+                Attendance.objects.update_or_create(
+                    employee=labour,
+                    date=attendance_date,
+                    project="IIT Project",
+                    defaults={
+                        "status": status,
+                        "updated_by": request.user,
+                    }
+                )
+            )
+
+            if created:
+
+                attendance.created_by = request.user
+
+                attendance.save(
+                    update_fields=["created_by"]
+                )
+
+            saved_count += 1
+
+        if saved_count == 0:
+
+            messages.error(
+                request,
+                "Please select attendance for at least one labour."
+            )
+
+        else:
+
+            messages.success(
+                request,
+                f"{saved_count} labour attendance record(s) saved successfully."
+            )
+
+        return redirect(
+            "attendance_history"
         )
 
     return render(
         request,
-        'attendance/labour_attendance.html',
+        "attendance/labour_attendance.html",
         {
-            'labour_list': labour_list,
+            "labour_list": labour_list,
+            "today": timezone.localdate(),
         }
+    )
+
+
+# =========================================================
+# LABOUR MANAGEMENT
+# SUPER ADMIN ONLY
+# =========================================================
+
+@login_required
+def labour_management(request):
+
+    if not request.user.is_superuser:
+
+        raise PermissionDenied
+
+    labour_list = Employee.objects.filter(
+        role="LABOUR"
+    ).order_by(
+        "-active",
+        "name"
+    )
+
+    return render(
+        request,
+        "attendance/labour_management.html",
+        {
+            "labour_list": labour_list,
+        }
+    )
+
+
+# =========================================================
+# ADD LABOUR
+# SUPER ADMIN ONLY
+# =========================================================
+
+@login_required
+def labour_add(request):
+
+    if not request.user.is_superuser:
+
+        raise PermissionDenied
+
+    if request.method != "POST":
+
+        return redirect(
+            "labour_management"
+        )
+
+    name = request.POST.get(
+        "name",
+        ""
+    ).strip()
+
+    if not name:
+
+        messages.error(
+            request,
+            "Please enter a labour name."
+        )
+
+        return redirect(
+            "labour_management"
+        )
+
+    existing = Employee.objects.filter(
+        name__iexact=name,
+        role="LABOUR"
+    ).first()
+
+    if existing:
+
+        if existing.active:
+
+            messages.error(
+                request,
+                "This labour already exists."
+            )
+
+        else:
+
+            existing.active = True
+            existing.save(
+                update_fields=["active"]
+            )
+
+            messages.success(
+                request,
+                f"{existing.name} has been activated again."
+            )
+
+        return redirect(
+            "labour_management"
+        )
+
+    Employee.objects.create(
+        name=name,
+        role="LABOUR",
+        active=True
+    )
+
+    messages.success(
+        request,
+        f"{name} added successfully."
+    )
+
+    return redirect(
+        "labour_management"
+    )
+
+
+# =========================================================
+# EDIT LABOUR
+# SUPER ADMIN ONLY
+# =========================================================
+
+@login_required
+def labour_edit(request, employee_id):
+
+    if not request.user.is_superuser:
+
+        raise PermissionDenied
+
+    labour = get_object_or_404(
+        Employee,
+        id=employee_id,
+        role="LABOUR"
+    )
+
+    if request.method == "POST":
+
+        name = request.POST.get(
+            "name",
+            ""
+        ).strip()
+
+        if not name:
+
+            messages.error(
+                request,
+                "Labour name cannot be empty."
+            )
+
+            return redirect(
+                "labour_management"
+            )
+
+        duplicate = Employee.objects.filter(
+            name__iexact=name,
+            role="LABOUR"
+        ).exclude(
+            id=labour.id
+        ).exists()
+
+        if duplicate:
+
+            messages.error(
+                request,
+                "Another labour with this name already exists."
+            )
+
+            return redirect(
+                "labour_management"
+            )
+
+        labour.name = name
+
+        labour.save(
+            update_fields=["name"]
+        )
+
+        messages.success(
+            request,
+            "Labour name updated successfully."
+        )
+
+        return redirect(
+            "labour_management"
+        )
+
+    return render(
+        request,
+        "attendance/labour_edit.html",
+        {
+            "labour": labour,
+        }
+    )
+
+
+# =========================================================
+# ACTIVATE / DEACTIVATE LABOUR
+# SUPER ADMIN ONLY
+# =========================================================
+
+@login_required
+def labour_toggle(request, employee_id):
+
+    if not request.user.is_superuser:
+
+        raise PermissionDenied
+
+    labour = get_object_or_404(
+        Employee,
+        id=employee_id,
+        role="LABOUR"
+    )
+
+    if request.method != "POST":
+
+        return redirect(
+            "labour_management"
+        )
+
+    labour.active = not labour.active
+
+    labour.save(
+        update_fields=["active"]
+    )
+
+    if labour.active:
+
+        messages.success(
+            request,
+            f"{labour.name} activated successfully."
+        )
+
+    else:
+
+        messages.success(
+            request,
+            f"{labour.name} deactivated successfully."
+        )
+
+    return redirect(
+        "labour_management"
     )
 
 
@@ -370,33 +639,26 @@ def labour_attendance(request):
 def attendance_history(request):
 
     records = Attendance.objects.select_related(
-        'employee',
-        'updated_by'
+        "employee",
+        "created_by",
+        "updated_by"
     ).all()
 
     from_date = request.GET.get(
-        'from_date',
-        ''
+        "from_date"
     )
 
     to_date = request.GET.get(
-        'to_date',
-        ''
+        "to_date"
     )
 
-    selected_employee = request.GET.get(
-        'employee',
-        ''
+    employee_id = request.GET.get(
+        "employee"
     )
 
-    selected_status = request.GET.get(
-        'status',
-        ''
+    status = request.GET.get(
+        "status"
     )
-
-    # -----------------------------------------------------
-    # DATE FILTER
-    # -----------------------------------------------------
 
     if from_date:
 
@@ -410,66 +672,40 @@ def attendance_history(request):
             date__lte=to_date
         )
 
-    # -----------------------------------------------------
-    # EMPLOYEE FILTER
-    # -----------------------------------------------------
-
-    if selected_employee:
+    if employee_id:
 
         records = records.filter(
-            employee_id=selected_employee
+            employee_id=employee_id
         )
 
-    # -----------------------------------------------------
-    # STATUS FILTER
-    # -----------------------------------------------------
-
-    if selected_status:
+    if status:
 
         records = records.filter(
-            status=selected_status
+            status=status
         )
-
-    # -----------------------------------------------------
-    # ORDER
-    # -----------------------------------------------------
 
     records = records.order_by(
-        '-date',
-        'employee__name'
+        "-date",
+        "employee__name"
     )
-
-    # -----------------------------------------------------
-    # EMPLOYEES
-    # -----------------------------------------------------
 
     employees = Employee.objects.filter(
         active=True
     ).order_by(
-        'name'
+        "name"
     )
-
-    context = {
-
-        'records': records,
-
-        'employees': employees,
-
-        'from_date': from_date,
-
-        'to_date': to_date,
-
-        'selected_employee':
-            selected_employee,
-
-        'selected_status':
-            selected_status,
-    }
 
     return render(
         request,
-        'attendance/attendance_history.html',
-        context
+        "attendance/attendance_history.html",
+        {
+            "records": records,
+            "employees": employees,
+            "from_date": from_date,
+            "to_date": to_date,
+            "selected_employee": employee_id,
+            "selected_status": status,
+        }
     )
 
 
@@ -480,34 +716,34 @@ def attendance_history(request):
 @login_required
 def attendance_pdf(request):
 
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.platypus import (
+        SimpleDocTemplate,
+        Table,
+        TableStyle
+    )
+
     records = Attendance.objects.select_related(
-        'employee',
-        'updated_by'
+        "employee"
     ).all()
 
     from_date = request.GET.get(
-        'from_date',
-        ''
+        "from_date"
     )
 
     to_date = request.GET.get(
-        'to_date',
-        ''
+        "to_date"
     )
 
-    selected_employee = request.GET.get(
-        'employee',
-        ''
+    employee_id = request.GET.get(
+        "employee"
     )
 
-    selected_status = request.GET.get(
-        'status',
-        ''
+    status = request.GET.get(
+        "status"
     )
-
-    # -----------------------------------------------------
-    # FILTERS
-    # -----------------------------------------------------
 
     if from_date:
 
@@ -521,431 +757,121 @@ def attendance_pdf(request):
             date__lte=to_date
         )
 
-    if selected_employee:
+    if employee_id:
 
         records = records.filter(
-            employee_id=selected_employee
+            employee_id=employee_id
         )
 
-    if selected_status:
+    if status:
 
         records = records.filter(
-            status=selected_status
+            status=status
         )
 
     records = records.order_by(
-        '-date',
-        'employee__name'
+        "-date",
+        "employee__name"
     )
 
-    # -----------------------------------------------------
-    # PDF RESPONSE
-    # -----------------------------------------------------
-
     response = HttpResponse(
-        content_type='application/pdf'
+        content_type="application/pdf"
     )
 
     response[
-        'Content-Disposition'
-    ] = (
-        'attachment; '
-        'filename="attendance_report.pdf"'
-    )
+        "Content-Disposition"
+    ] = 'attachment; filename="attendance_report.pdf"'
 
-    document = SimpleDocTemplate(
-
+    doc = SimpleDocTemplate(
         response,
-
         pagesize=landscape(A4),
-
-        rightMargin=12 * mm,
-
-        leftMargin=12 * mm,
-
-        topMargin=12 * mm,
-
-        bottomMargin=12 * mm,
+        rightMargin=20,
+        leftMargin=20,
+        topMargin=20,
+        bottomMargin=20,
     )
 
     styles = getSampleStyleSheet()
 
-    title_style = styles['Title']
-
-    title_style.alignment = TA_CENTER
-
-    elements = []
-
-    # -----------------------------------------------------
-    # TITLE
-    # -----------------------------------------------------
-
-    elements.append(
-
-        Paragraph(
-            'ELV Management System',
-            title_style
-        )
-
-    )
-
-    elements.append(
-
-        Paragraph(
-            'Attendance Report',
-            styles['Heading2']
-        )
-
-    )
-
-    elements.append(
-        Spacer(1, 8)
-    )
-
-    # -----------------------------------------------------
-    # DATE PERIOD
-    # -----------------------------------------------------
-
-    if from_date and to_date:
-
-        period_text = (
-            f'<b>Date Period:</b> '
-            f'{from_date} to {to_date}'
-        )
-
-    elif from_date:
-
-        period_text = (
-            f'<b>From Date:</b> '
-            f'{from_date}'
-        )
-
-    elif to_date:
-
-        period_text = (
-            f'<b>Up To Date:</b> '
-            f'{to_date}'
-        )
-
-    else:
-
-        period_text = (
-            '<b>Date Period:</b> '
-            'All Dates'
-        )
-
-    elements.append(
-
-        Paragraph(
-            period_text,
-            styles['Normal']
-        )
-
-    )
-
-    # -----------------------------------------------------
-    # EMPLOYEE
-    # -----------------------------------------------------
-
-    employee_name = 'All Employees'
-
-    if selected_employee:
-
-        try:
-
-            employee = Employee.objects.get(
-                id=selected_employee
-            )
-
-            employee_name = employee.name
-
-        except Employee.DoesNotExist:
-
-            employee_name = 'Unknown'
-
-    elements.append(
-
-        Paragraph(
-            f'<b>Employee:</b> '
-            f'{employee_name}',
-            styles['Normal']
-        )
-
-    )
-
-    # -----------------------------------------------------
-    # STATUS
-    # -----------------------------------------------------
-
-    status_name = 'All Status'
-
-    if selected_status == 'WORKED':
-
-        status_name = 'Present'
-
-    elif selected_status == 'NOT_WORKED':
-
-        status_name = 'Absent'
-
-    elif selected_status == 'HALF_DAY':
-
-        status_name = 'Half Day'
-
-    elements.append(
-
-        Paragraph(
-            f'<b>Status:</b> '
-            f'{status_name}',
-            styles['Normal']
-        )
-
-    )
-
-    elements.append(
-        Spacer(1, 12)
-    )
-
-    # -----------------------------------------------------
-    # TABLE HEADER
-    # -----------------------------------------------------
-
     data = [
-
         [
-            'Date',
-            'Employee',
-            'Role',
-            'Project',
-            'Status',
-            'Note',
-            'Updated By'
+            "Date",
+            "Employee",
+            "Project",
+            "Status",
+            "Created By",
+            "Updated By",
         ]
-
     ]
-
-    # -----------------------------------------------------
-    # TABLE DATA
-    # -----------------------------------------------------
 
     for record in records:
 
-        status_display = (
-            record.get_status_display()
-        )
-
-        updated_by = '-'
-
-        if record.updated_by:
-
-            updated_by = (
-                record.updated_by.username
-            )
-
-        note = record.note or '-'
-
         data.append(
-
             [
-                record.date.strftime(
-                    '%Y-%m-%d'
-                ),
-
+                str(record.date),
                 record.employee.name,
-
-                record.employee.get_role_display(),
-
-                record.project or '-',
-
-                status_display,
-
-                note,
-
-                updated_by,
+                record.project or "",
+                record.get_status_display(),
+                (
+                    record.created_by.username
+                    if record.created_by
+                    else ""
+                ),
+                (
+                    record.updated_by.username
+                    if record.updated_by
+                    else ""
+                ),
             ]
-
         )
-
-    # -----------------------------------------------------
-    # NO RECORDS
-    # -----------------------------------------------------
-
-    if len(data) == 1:
-
-        data.append(
-
-            [
-                '-',
-                'No attendance records found',
-                '-',
-                '-',
-                '-',
-                '-',
-                '-'
-            ]
-
-        )
-
-    # -----------------------------------------------------
-    # TABLE
-    # -----------------------------------------------------
 
     table = Table(
-
         data,
-
-        repeatRows=1,
-
-        colWidths=[
-
-            25 * mm,
-
-            42 * mm,
-
-            25 * mm,
-
-            40 * mm,
-
-            30 * mm,
-
-            60 * mm,
-
-            30 * mm,
-
-        ]
-
+        repeatRows=1
     )
 
     table.setStyle(
-
         TableStyle(
-
             [
-
                 (
-                    'BACKGROUND',
+                    "BACKGROUND",
                     (0, 0),
                     (-1, 0),
-                    colors.HexColor('#212529')
+                    colors.grey
                 ),
-
                 (
-                    'TEXTCOLOR',
+                    "TEXTCOLOR",
                     (0, 0),
                     (-1, 0),
                     colors.white
                 ),
-
                 (
-                    'FONTNAME',
-                    (0, 0),
-                    (-1, 0),
-                    'Helvetica-Bold'
-                ),
-
-                (
-                    'FONTSIZE',
-                    (0, 0),
-                    (-1, -1),
-                    8
-                ),
-
-                (
-                    'GRID',
+                    "GRID",
                     (0, 0),
                     (-1, -1),
                     0.5,
-                    colors.grey
+                    colors.black
                 ),
-
                 (
-                    'VALIGN',
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    "Helvetica-Bold"
+                ),
+                (
+                    "ALIGN",
                     (0, 0),
                     (-1, -1),
-                    'MIDDLE'
+                    "LEFT"
                 ),
-
-                (
-                    'ROWBACKGROUNDS',
-                    (0, 1),
-                    (-1, -1),
-                    [
-                        colors.white,
-                        colors.HexColor('#f4f6f8')
-                    ]
-                ),
-
-                (
-                    'LEFTPADDING',
-                    (0, 0),
-                    (-1, -1),
-                    5
-                ),
-
-                (
-                    'RIGHTPADDING',
-                    (0, 0),
-                    (-1, -1),
-                    5
-                ),
-
-                (
-                    'TOPPADDING',
-                    (0, 0),
-                    (-1, -1),
-                    5
-                ),
-
-                (
-                    'BOTTOMPADDING',
-                    (0, 0),
-                    (-1, -1),
-                    5
-                ),
-
             ]
-
         )
-
     )
 
-    elements.append(table)
-
-    elements.append(
-        Spacer(1, 10)
+    doc.build(
+        [
+            table
+        ]
     )
-
-    # -----------------------------------------------------
-    # GENERATED TIME
-    # -----------------------------------------------------
-
-    generated_time = timezone.localtime().strftime(
-        '%Y-%m-%d %H:%M'
-    )
-
-    elements.append(
-
-        Paragraph(
-            f'Report generated: '
-            f'{generated_time}',
-            styles['Normal']
-        )
-
-    )
-
-    elements.append(
-
-        Paragraph(
-            f'Total records: '
-            f'{records.count()}',
-            styles['Normal']
-        )
-
-    )
-
-    # -----------------------------------------------------
-    # BUILD PDF
-    # -----------------------------------------------------
-
-    document.build(elements)
 
     return response

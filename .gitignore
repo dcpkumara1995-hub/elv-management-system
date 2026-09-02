@@ -2,13 +2,12 @@ venv/
 __pycache__/
 *.pyc
 
-db.sqlite3
-db_backup.sqlite3
-backup_data.json
-
 .env
-.env.*
-!.env.example
 
-*.log
+db.sqlite3
+db_backup_before_supabase.sqlite3
+
 staticfiles/
+
+*.sqlite3
+backup_data.json

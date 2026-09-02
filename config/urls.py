@@ -2,41 +2,71 @@ from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
 
-from accounts.views import login_view, logout_view
 from app.views import dashboard, iit_project
 
 
-def health_check(request):
-    return JsonResponse({"status": "ok"})
+# =========================================================
+# HEALTH CHECK
+# =========================================================
 
+def health_check(request):
+
+    return JsonResponse(
+        {
+            "status": "ok"
+        }
+    )
+
+
+# =========================================================
+# URL PATTERNS
+# =========================================================
 
 urlpatterns = [
+
+    # =====================================================
+    # DJANGO ADMIN
+    # =====================================================
+
     path(
         "admin/",
         admin.site.urls
     ),
+
+    # =====================================================
+    # ACCOUNTS
+    # LOGIN / LOGOUT
+    # SUPER USER
+    # USER MANAGEMENT
+    # CHANGE PASSWORD
+    # =====================================================
+
+    path(
+        "",
+        include("accounts.urls")
+    ),
+
+    # =====================================================
+    # STOCK
+    # =====================================================
 
     path(
         "stock/",
         include("stock.urls")
     ),
 
+    # =====================================================
+    # ATTENDANCE
+    # =====================================================
+
     path(
         "attendance/",
         include("attendance.urls")
     ),
 
-    path(
-        "login/",
-        login_view,
-        name="login"
-    ),
-
-    path(
-        "logout/",
-        logout_view,
-        name="logout"
-    ),
+    # =====================================================
+    # NORMAL DASHBOARD
+    # =====================================================
 
     path(
         "dashboard/",
@@ -44,11 +74,19 @@ urlpatterns = [
         name="dashboard"
     ),
 
+    # =====================================================
+    # IIT PROJECT
+    # =====================================================
+
     path(
         "iit-project/",
         iit_project,
         name="iit_project"
     ),
+
+    # =====================================================
+    # HEALTH CHECK
+    # =====================================================
 
     path(
         "health/",
@@ -60,11 +98,5 @@ urlpatterns = [
         "health",
         health_check,
         name="health_no_slash"
-    ),
-
-    path(
-        "",
-        login_view,
-        name="home"
     ),
 ]
