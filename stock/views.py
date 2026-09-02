@@ -8,7 +8,17 @@ from .models import StockItem, StockMovement
 
 
 @login_required(login_url="/login/")
+def stock_home(request):
+
+    return render(
+        request,
+        "stock/stock_home.html"
+    )
+
+
+@login_required(login_url="/login/")
 def current_stock(request):
+
     items = StockItem.objects.all().order_by("name")
 
     return render(
@@ -20,21 +30,26 @@ def current_stock(request):
 
 @login_required(login_url="/login/")
 def stock_update(request):
+
     items = StockItem.objects.all().order_by("name")
 
     if request.method == "POST":
+
         item_id = request.POST.get("item")
         movement_type = request.POST.get("movement_type")
         quantity_text = request.POST.get("quantity")
         note = request.POST.get("note", "")
 
         try:
+
             item = StockItem.objects.get(id=item_id)
 
             quantity = Decimal(quantity_text)
 
             if quantity <= 0:
-                raise ValueError("Quantity must be greater than 0.")
+                raise ValueError(
+                    "Quantity must be greater than 0."
+                )
 
             StockMovement.objects.create(
                 item=item,
@@ -49,10 +64,18 @@ def stock_update(request):
             )
 
         except (InvalidOperation, ValueError) as e:
-            messages.error(request, str(e))
+
+            messages.error(
+                request,
+                str(e)
+            )
 
         except Exception as e:
-            messages.error(request, str(e))
+
+            messages.error(
+                request,
+                str(e)
+            )
 
         return redirect("stock_update")
 
@@ -65,6 +88,7 @@ def stock_update(request):
 
 @login_required(login_url="/login/")
 def reports(request):
+
     movements = StockMovement.objects.select_related(
         "item"
     ).all().order_by("-created_at")

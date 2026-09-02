@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Stock Management - ELV Management System</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            display: block;
+            background: white;
+            padding: 22px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #222;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card:hover {
+            background: #f0f4ff;
+        }
+
+        .icon {
+            font-size: 35px;
+            float: left;
+            margin-right: 15px;
+        }
+
+        .name {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .description {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                margin: 10px auto;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- BACK BUTTON -->
+
+    {% if request.user.is_superuser %}
+
+        <a
+            class="back"
+            href="{% url 'superuser_dashboard' %}"
+        >
+            ← Back to Super User Panel
+        </a>
+
+    {% else %}
+
+        <a
+            class="back"
+            href="{% url 'dashboard' %}"
+        >
+            ← Back to Dashboard
+        </a>
+
+    {% endif %}
+
+
+    <h1>
+        Stock Management
+    </h1>
+
+
+    <div class="subtitle">
+        Manage stock and view inventory information
+    </div>
+
+
+    <!-- STOCK UPDATE -->
+
+    <a
+        class="card"
+        href="{% url 'stock_update' %}"
+    >
+
+        <div class="icon">
+            📦
+        </div>
+
+        <div class="name">
+            Stock Update
+        </div>
+
+        <div class="description">
+            Add Stock IN or Stock OUT and update inventory.
+        </div>
+
+        <div class="clear"></div>
+
+    </a>
+
+
+    <!-- CURRENT STOCK -->
+
+    <a
+        class="card"
+        href="{% url 'current_stock' %}"
+    >
+
+        <div class="icon">
+            📊
+        </div>
+
+        <div class="name">
+            Current Stock
+        </div>
+
+        <div class="description">
+            View the current quantity of all stock items.
+        </div>
+
+        <div class="clear"></div>
+
+    </a>
+
+
+    <!-- STOCK REPORT -->
+
+    <a
+        class="card"
+        href="{% url 'reports' %}"
+    >
+
+        <div class="icon">
+            📋
+        </div>
+
+        <div class="name">
+            Stock Report
+        </div>
+
+        <div class="description">
+            View stock movement and transaction reports.
+        </div>
+
+        <div class="clear"></div>
+
+    </a>
+
+
+</div>
+
+
+</body>
+
+</html>

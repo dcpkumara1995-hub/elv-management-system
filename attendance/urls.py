@@ -85,6 +85,17 @@ urlpatterns = [
     ),
 
     # =====================================================
+    # DELETE ATTENDANCE
+    # SUPER ADMIN ONLY
+    # =====================================================
+
+    path(
+        'history/delete/<int:attendance_id>/',
+        views.delete_attendance,
+        name='delete_attendance'
+    ),
+
+    # =====================================================
     # ATTENDANCE PDF
     # =====================================================
 

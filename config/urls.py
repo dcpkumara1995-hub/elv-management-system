@@ -1,8 +1,18 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
+from django.shortcuts import redirect
 
 from app.views import dashboard, iit_project
+
+
+# =========================================================
+# ROOT REDIRECT
+# =========================================================
+
+def root_redirect(request):
+
+    return redirect("login")
 
 
 # =========================================================
@@ -23,6 +33,16 @@ def health_check(request):
 # =========================================================
 
 urlpatterns = [
+
+    # =====================================================
+    # ROOT
+    # =====================================================
+
+    path(
+        "",
+        root_redirect,
+        name="root"
+    ),
 
     # =====================================================
     # DJANGO ADMIN

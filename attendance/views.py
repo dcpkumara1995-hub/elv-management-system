@@ -97,7 +97,6 @@ def employee_attendance(request):
         else:
 
             status = "NOT_WORKED"
-
             project = ""
 
         # -------------------------------------------------
@@ -137,6 +136,7 @@ def employee_attendance(request):
         if created:
 
             attendance.created_by = request.user
+
             attendance.save(
                 update_fields=["created_by"]
             )
@@ -475,6 +475,7 @@ def labour_add(request):
         else:
 
             existing.active = True
+
             existing.save(
                 update_fields=["active"]
             )
@@ -628,6 +629,44 @@ def labour_toggle(request, employee_id):
 
     return redirect(
         "labour_management"
+    )
+
+
+# =========================================================
+# DELETE ATTENDANCE
+# SUPER ADMIN ONLY
+# =========================================================
+
+@login_required
+def delete_attendance(request, attendance_id):
+
+    if not request.user.is_superuser:
+
+        raise PermissionDenied
+
+    attendance = get_object_or_404(
+        Attendance,
+        id=attendance_id
+    )
+
+    if request.method != "POST":
+
+        return redirect(
+            "attendance_history"
+        )
+
+    employee_name = attendance.employee.name
+    attendance_date = attendance.date
+
+    attendance.delete()
+
+    messages.success(
+        request,
+        f"Attendance for {employee_name} on {attendance_date} deleted successfully."
+    )
+
+    return redirect(
+        "attendance_history"
     )
 
 
