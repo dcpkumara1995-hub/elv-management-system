@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "stock",
     "accounts",
     "attendance",
+    "dailyworks",
 ]
 
 

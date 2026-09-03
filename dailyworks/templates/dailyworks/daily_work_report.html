@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Daily Work Report</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.10);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .filter-box {
+            background: #f8f9fa;
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 12px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .field {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button,
+        .btn {
+            display: inline-block;
+            padding: 11px 16px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .filter-btn {
+            background: #198754;
+            color: white;
+        }
+
+        .pdf-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .top-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 18px;
+            border-radius: 8px;
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .count {
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th {
+            background: #198754;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .date {
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+        .work {
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .created-by {
+            white-space: nowrap;
+        }
+
+        .created-time {
+            white-space: nowrap;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+                border-radius: 10px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            .filter-row {
+                display: block;
+            }
+
+            .field {
+                margin-bottom: 12px;
+            }
+
+            .filter-btn,
+            .pdf-btn,
+            .back-btn {
+                width: 100%;
+                text-align: center;
+                margin-top: 5px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>📊 IIT Project - Daily Work Report</h2>
+
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div class="message">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <div class="top-buttons">
+
+        <a
+            href="{% url 'daily_work_list' %}"
+            class="btn back-btn"
+        >
+            ← Back to Daily Works
+        </a>
+
+    </div>
+
+
+    <div class="filter-box">
+
+        <form method="GET">
+
+            <div class="filter-row">
+
+                <div class="field">
+
+                    <label>
+                        From Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="from_date"
+                        value="{{ from_date }}"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        To Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="to_date"
+                        value="{{ to_date }}"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <button
+                        type="submit"
+                        class="btn filter-btn"
+                    >
+                        🔍 Filter Report
+                    </button>
+
+                </div>
+
+
+                <div class="field">
+
+                    <a
+                        href="{% url 'daily_work_pdf' %}?from_date={{ from_date }}&to_date={{ to_date }}"
+                        class="btn pdf-btn"
+                        target="_blank"
+                    >
+                        📄 Generate PDF
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <div class="count">
+
+        Total Work Items:
+        <strong>{{ works|length }}</strong>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Date
+                    </th>
+
+                    <th>
+                        Work Description
+                    </th>
+
+                    <th>
+                        Created By
+                    </th>
+
+                    <th>
+                        Created Time
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for item in works %}
+
+                    <tr>
+
+                        <td class="date">
+
+                            {{ item.date|date:"d M Y" }}
+
+                        </td>
+
+
+                        <td class="work">
+
+                            {{ item.work }}
+
+                        </td>
+
+
+                        <td class="created-by">
+
+                            {% if item.created_by %}
+
+                                {{ item.created_by.get_full_name|default:item.created_by.username }}
+
+                            {% else %}
+
+                                Unknown
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="created-time">
+
+                            {{ item.created_at|date:"d M Y" }}
+
+                            <br>
+
+                            {{ item.created_at|date:"h:i A" }}
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="empty"
+                        >
+                            No work records found for the selected dates.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

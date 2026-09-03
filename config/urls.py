@@ -6,117 +6,36 @@ from django.shortcuts import redirect
 from app.views import dashboard, iit_project
 
 
-# =========================================================
-# ROOT REDIRECT
-# =========================================================
-
 def root_redirect(request):
 
     return redirect("login")
 
 
-# =========================================================
-# HEALTH CHECK
-# =========================================================
-
 def health_check(request):
 
-    return JsonResponse(
-        {
-            "status": "ok"
-        }
-    )
+    return JsonResponse({"status": "ok"})
 
-
-# =========================================================
-# URL PATTERNS
-# =========================================================
 
 urlpatterns = [
 
-    # =====================================================
-    # ROOT
-    # =====================================================
+    path("", root_redirect, name="root"),
 
-    path(
-        "",
-        root_redirect,
-        name="root"
-    ),
+    path("admin/", admin.site.urls),
 
-    # =====================================================
-    # DJANGO ADMIN
-    # =====================================================
+    path("", include("accounts.urls")),
 
-    path(
-        "admin/",
-        admin.site.urls
-    ),
+    path("stock/", include("stock.urls")),
 
-    # =====================================================
-    # ACCOUNTS
-    # LOGIN / LOGOUT
-    # SUPER USER
-    # USER MANAGEMENT
-    # CHANGE PASSWORD
-    # =====================================================
+    path("attendance/", include("attendance.urls")),
 
-    path(
-        "",
-        include("accounts.urls")
-    ),
+    path("daily-works/", include("dailyworks.urls")),
 
-    # =====================================================
-    # STOCK
-    # =====================================================
+    path("dashboard/", dashboard, name="dashboard"),
 
-    path(
-        "stock/",
-        include("stock.urls")
-    ),
+    path("iit-project/", iit_project, name="iit_project"),
 
-    # =====================================================
-    # ATTENDANCE
-    # =====================================================
+    path("health/", health_check, name="health"),
 
-    path(
-        "attendance/",
-        include("attendance.urls")
-    ),
+    path("health", health_check, name="health_no_slash"),
 
-    # =====================================================
-    # NORMAL DASHBOARD
-    # =====================================================
-
-    path(
-        "dashboard/",
-        dashboard,
-        name="dashboard"
-    ),
-
-    # =====================================================
-    # IIT PROJECT
-    # =====================================================
-
-    path(
-        "iit-project/",
-        iit_project,
-        name="iit_project"
-    ),
-
-    # =====================================================
-    # HEALTH CHECK
-    # =====================================================
-
-    path(
-        "health/",
-        health_check,
-        name="health"
-    ),
-
-    path(
-        "health",
-        health_check,
-        name="health_no_slash"
-    ),
 ]

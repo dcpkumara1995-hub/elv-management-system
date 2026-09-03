@@ -187,6 +187,15 @@
         }
 
 
+        /* DAILY WORKS */
+
+        .daily-work-card {
+
+            border-top:
+                4px solid #198754;
+        }
+
+
         /* MOBILE */
 
         @media (max-width: 600px) {
@@ -335,7 +344,7 @@
             >
 
                 <div class="icon">
-                    📋
+                    📑
                 </div>
 
                 <h3>
@@ -368,6 +377,30 @@
                 <p>
                     Manage employee and
                     labour attendance.
+                </p>
+
+            </a>
+
+
+            <!-- DAILY WORKS -->
+
+            <a
+                href="{% url 'daily_work_list' %}"
+                class="card daily-work-card"
+            >
+
+                <div class="icon">
+                    📝
+                </div>
+
+                <h3>
+                    Daily Works
+                </h3>
+
+                <p>
+                    Record daily work activities,
+                    edit work items and generate
+                    daily work reports.
                 </p>
 
             </a>
