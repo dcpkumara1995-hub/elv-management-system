@@ -96,6 +96,86 @@
             color: #842029;
         }
 
+        /* =================================================
+           ACCESS PERMISSIONS
+           ================================================= */
+
+        .permissions {
+            margin-top: 25px;
+            margin-bottom: 20px;
+            padding: 18px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .permissions-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .permissions-help {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .permission-item:hover {
+            background: #f1f5f9;
+        }
+
+        .permission-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .permission-label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .permission-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .permission-action {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .select-all {
+            background: #198754;
+            color: white;
+        }
+
+        .clear-all {
+            background: #6c757d;
+            color: white;
+        }
+
         .buttons {
             display: flex;
             gap: 10px;
@@ -157,6 +237,7 @@
 
 </head>
 
+
 <body>
 
 
@@ -178,7 +259,7 @@
     </div>
 
 
-    <!-- FORM -->
+    <!-- FORM CARD -->
 
     <div class="card">
 
@@ -314,6 +395,182 @@
             </div>
 
 
+            <!-- =================================================
+                 ACCESS PERMISSIONS
+                 ================================================= -->
+
+            <div class="permissions">
+
+                <div class="permissions-title">
+                    🔐 Access Permissions
+                </div>
+
+                <div class="permissions-help">
+                    Select which sections this user can access.
+                </div>
+
+
+                <!-- DASHBOARD -->
+
+                <label class="permission-item">
+
+                    <input
+                        type="checkbox"
+                        name="dashboard"
+                        value="1"
+                    >
+
+                    <span class="permission-label">
+                        📊 Dashboard
+                    </span>
+
+                </label>
+
+
+                <!-- IIT PROJECT -->
+
+                <label class="permission-item">
+
+                    <input
+                        type="checkbox"
+                        name="iit_project"
+                        value="1"
+                    >
+
+                    <span class="permission-label">
+                        🏢 IIT Project
+                    </span>
+
+                </label>
+
+
+                <!-- STOCK UPDATE -->
+
+                <label class="permission-item">
+
+                    <input
+                        type="checkbox"
+                        name="stock_update"
+                        value="1"
+                    >
+
+                    <span class="permission-label">
+                        📦 Stock Update
+                    </span>
+
+                </label>
+
+
+                <!-- CURRENT STOCK -->
+
+                <label class="permission-item">
+
+                    <input
+                        type="checkbox"
+                        name="current_stock"
+                        value="1"
+                    >
+
+                    <span class="permission-label">
+                        📋 Current Stock
+                    </span>
+
+                </label>
+
+
+                <!-- STOCK REPORT -->
+
+                <label class="permission-item">
+
+                    <input
+                        type="checkbox"
+                        name="stock_report"
+                        value="1"
+                    >
+
+                    <span class="permission-label">
+                        📈 Stock Report
+                    </span>
+
+                </label>
+
+
+                <!-- ATTENDANCE -->
+
+                <label class="permission-item">
+
+                    <input
+                        type="checkbox"
+                        name="attendance"
+                        value="1"
+                    >
+
+                    <span class="permission-label">
+                        🕒 Attendance
+                    </span>
+
+                </label>
+
+
+                <!-- DAILY WORKS -->
+
+                <label class="permission-item">
+
+                    <input
+                        type="checkbox"
+                        name="daily_works"
+                        value="1"
+                    >
+
+                    <span class="permission-label">
+                        📝 Daily Works
+                    </span>
+
+                </label>
+
+
+                <!-- USER MANAGEMENT -->
+
+                <label class="permission-item">
+
+                    <input
+                        type="checkbox"
+                        name="user_management"
+                        value="1"
+                    >
+
+                    <span class="permission-label">
+                        👥 User Management
+                    </span>
+
+                </label>
+
+
+                <!-- SELECT / CLEAR -->
+
+                <div class="permission-actions">
+
+                    <button
+                        type="button"
+                        class="permission-action select-all"
+                        onclick="selectAllPermissions()"
+                    >
+                        ✓ Select All
+                    </button>
+
+                    <button
+                        type="button"
+                        class="permission-action clear-all"
+                        onclick="clearAllPermissions()"
+                    >
+                        ✕ Clear All
+                    </button>
+
+                </div>
+
+            </div>
+
+
             <!-- BUTTONS -->
 
             <div class="buttons">
@@ -354,6 +611,11 @@
 
 <script>
 
+
+// =========================================================
+// PASSWORD VALIDATION
+// =========================================================
+
 function validatePasswords() {
 
     const password =
@@ -373,6 +635,47 @@ function validatePasswords() {
 
     return true;
 }
+
+
+// =========================================================
+// SELECT ALL PERMISSIONS
+// =========================================================
+
+function selectAllPermissions() {
+
+    const checkboxes =
+        document.querySelectorAll(
+            '.permission-item input[type="checkbox"]'
+        );
+
+    checkboxes.forEach(function(checkbox) {
+
+        checkbox.checked = true;
+
+    });
+
+}
+
+
+// =========================================================
+// CLEAR ALL PERMISSIONS
+// =========================================================
+
+function clearAllPermissions() {
+
+    const checkboxes =
+        document.querySelectorAll(
+            '.permission-item input[type="checkbox"]'
+        );
+
+    checkboxes.forEach(function(checkbox) {
+
+        checkbox.checked = false;
+
+    });
+
+}
+
 
 </script>
 

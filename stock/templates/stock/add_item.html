@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Add New Stock Item</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            max-width: 550px;
+            margin: 30px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #198754;
+        }
+
+        .info {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 8px;
+            background: #198754;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #157347;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 18px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: #f8d7da;
+            color: #842029;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>➕ Add New Stock Item</h2>
+
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div class="message">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+
+        <label>
+            Item Name
+        </label>
+
+        <input
+            type="text"
+            name="name"
+            placeholder="Example: Cat6 Cable"
+            required
+        >
+
+
+        <label>
+            Category
+        </label>
+
+        <input
+            type="text"
+            name="category"
+            placeholder="Example: Network Cable"
+        >
+
+
+        <label>
+            Unit
+        </label>
+
+        <input
+            type="text"
+            name="unit"
+            value="Nos"
+            placeholder="Nos / Meter / Box / Roll"
+            required
+        >
+
+        <div class="info">
+            Example: Nos, Meter, Box, Roll, Packet
+        </div>
+
+
+        <label>
+            Opening Quantity
+        </label>
+
+        <input
+            type="number"
+            name="quantity"
+            value="0"
+            min="0"
+            step="0.01"
+            required
+        >
+
+
+        <label>
+            Minimum Stock
+        </label>
+
+        <input
+            type="number"
+            name="minimum_stock"
+            value="0"
+            min="0"
+            step="0.01"
+            required
+        >
+
+        <div class="info">
+            System can use this value to identify low stock.
+        </div>
+
+
+        <button type="submit">
+            Save New Item
+        </button>
+
+    </form>
+
+
+    <a
+        class="back"
+        href="{% url 'stock_update' %}"
+    >
+        ← Back to Stock Update
+    </a>
+
+</div>
+
+</body>
+
+</html>

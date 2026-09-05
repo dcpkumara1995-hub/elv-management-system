@@ -61,6 +61,36 @@
             background: #374151;
         }
 
+        /* ADD ITEM BUTTON */
+
+        .add-item {
+            display: block;
+
+            width: 100%;
+
+            padding: 12px;
+
+            margin-bottom: 20px;
+
+            background: #198754;
+
+            color: white;
+
+            text-align: center;
+
+            text-decoration: none;
+
+            border-radius: 6px;
+
+            font-size: 16px;
+
+            font-weight: bold;
+        }
+
+        .add-item:hover {
+            background: #157347;
+        }
+
         h1 {
             margin-top: 0;
             margin-bottom: 25px;
@@ -179,6 +209,16 @@
     <h1>
         ELV Stock Update
     </h1>
+
+
+    <!-- ADD NEW ITEM -->
+
+    <a
+        href="{% url 'add_item' %}"
+        class="add-item"
+    >
+        ➕ ADD NEW ITEM
+    </a>
 
 
     <!-- MESSAGES -->

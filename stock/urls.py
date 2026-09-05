@@ -17,6 +17,18 @@ urlpatterns = [
     ),
 
     path(
+        "add-item/",
+        views.add_item,
+        name="add_item"
+    ),
+
+    path(
+        "delete/<int:item_id>/",
+        views.delete_item,
+        name="delete_item"
+    ),
+
+    path(
         "current/",
         views.current_stock,
         name="current_stock"

@@ -4,6 +4,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
+from .models import UserAccess
+
 
 # =========================================================
 # LOGIN
@@ -32,11 +34,15 @@ def login_view(request):
         if user is not None:
 
             if not user.is_active:
+
                 return render(
                     request,
                     "accounts/login.html",
                     {
-                        "error": "Your account is inactive. Please contact the administrator."
+                        "error": (
+                            "Your account is inactive. "
+                            "Please contact the administrator."
+                        )
                     }
                 )
 
@@ -77,6 +83,7 @@ def logout_view(request):
 
 # =========================================================
 # SUPER USER DASHBOARD
+# SUPER USER ONLY
 # =========================================================
 
 @login_required
@@ -109,6 +116,15 @@ def user_management(request):
 
     users = User.objects.all().order_by("username")
 
+    # Make sure every normal user has an access record
+    for user in users:
+
+        if not user.is_superuser:
+
+            UserAccess.objects.get_or_create(
+                user=user
+            )
+
     return render(
         request,
         "accounts/user_management.html",
@@ -131,14 +147,70 @@ def create_user(request):
 
     if request.method == "POST":
 
-        username = request.POST.get("username", "").strip()
-        first_name = request.POST.get("first_name", "").strip()
-        last_name = request.POST.get("last_name", "").strip()
-        password = request.POST.get("password", "")
+        username = request.POST.get(
+            "username",
+            ""
+        ).strip()
+
+        first_name = request.POST.get(
+            "first_name",
+            ""
+        ).strip()
+
+        last_name = request.POST.get(
+            "last_name",
+            ""
+        ).strip()
+
+        password = request.POST.get(
+            "password",
+            ""
+        )
+
         confirm_password = request.POST.get(
             "confirm_password",
             ""
         )
+
+        # -------------------------------------------------
+        # PERMISSIONS
+        # -------------------------------------------------
+
+        dashboard_access = (
+            "dashboard" in request.POST
+        )
+
+        iit_project_access = (
+            "iit_project" in request.POST
+        )
+
+        stock_update_access = (
+            "stock_update" in request.POST
+        )
+
+        current_stock_access = (
+            "current_stock" in request.POST
+        )
+
+        stock_report_access = (
+            "stock_report" in request.POST
+        )
+
+        attendance_access = (
+            "attendance" in request.POST
+        )
+
+        daily_works_access = (
+            "daily_works" in request.POST
+        )
+
+        user_management_access = (
+            "user_management" in request.POST
+        )
+
+        # -------------------------------------------------
+        # VALIDATION
+        # -------------------------------------------------
 
         if not username:
 
@@ -178,6 +250,10 @@ def create_user(request):
 
             return redirect("create_user")
 
+        # -------------------------------------------------
+        # CREATE USER
+        # -------------------------------------------------
+
         user = User.objects.create_user(
             username=username,
             password=password,
@@ -190,6 +266,31 @@ def create_user(request):
         user.is_superuser = False
 
         user.save()
+
+        # -------------------------------------------------
+        # CREATE USER ACCESS
+        # -------------------------------------------------
+
+        UserAccess.objects.create(
+
+            user=user,
+
+            dashboard=dashboard_access,
+
+            iit_project=iit_project_access,
+
+            stock_update=stock_update_access,
+
+            current_stock=current_stock_access,
+
+            stock_report=stock_report_access,
+
+            attendance=attendance_access,
+
+            daily_works=daily_works_access,
+
+            user_management=user_management_access,
+        )
 
         messages.success(
             request,
@@ -216,9 +317,11 @@ def edit_user(request, user_id):
         return redirect("dashboard")
 
     try:
+
         user = User.objects.get(
             id=user_id
         )
+
     except User.DoesNotExist:
 
         messages.error(
@@ -227,6 +330,24 @@ def edit_user(request, user_id):
         )
 
         return redirect("user_management")
+
+    # -----------------------------------------------------
+    # Super User Access
+    # -----------------------------------------------------
+
+    if user.is_superuser:
+
+        access = None
+
+    else:
+
+        access, created = UserAccess.objects.get_or_create(
+            user=user
+        )
+
+    # -----------------------------------------------------
+    # POST
+    # -----------------------------------------------------
 
     if request.method == "POST":
 
@@ -245,6 +366,46 @@ def edit_user(request, user_id):
 
         user.save()
 
+        # -------------------------------------------------
+        # UPDATE PERMISSIONS
+        # -------------------------------------------------
+
+        if not user.is_superuser:
+
+            access.dashboard = (
+                "dashboard" in request.POST
+            )
+
+            access.iit_project = (
+                "iit_project" in request.POST
+            )
+
+            access.stock_update = (
+                "stock_update" in request.POST
+            )
+
+            access.current_stock = (
+                "current_stock" in request.POST
+            )
+
+            access.stock_report = (
+                "stock_report" in request.POST
+            )
+
+            access.attendance = (
+                "attendance" in request.POST
+            )
+
+            access.daily_works = (
+                "daily_works" in request.POST
+            )
+
+            access.user_management = (
+                "user_management" in request.POST
+            )
+
+            access.save()
+
         messages.success(
             request,
             f"User '{user.username}' updated successfully."
@@ -252,11 +413,16 @@ def edit_user(request, user_id):
 
         return redirect("user_management")
 
+    # -----------------------------------------------------
+    # GET
+    # -----------------------------------------------------
+
     return render(
         request,
         "accounts/edit_user.html",
         {
             "edit_user": user,
+            "access": access,
         }
     )
 
@@ -273,9 +439,11 @@ def reset_user_password(request, user_id):
         return redirect("dashboard")
 
     try:
+
         user = User.objects.get(
             id=user_id
         )
+
     except User.DoesNotExist:
 
         messages.error(
@@ -353,9 +521,11 @@ def toggle_user(request, user_id):
         return redirect("dashboard")
 
     try:
+
         user = User.objects.get(
             id=user_id
         )
+
     except User.DoesNotExist:
 
         messages.error(
@@ -365,8 +535,9 @@ def toggle_user(request, user_id):
 
         return redirect("user_management")
 
-    # Prevent super user from accidentally
-    # disabling their own account.
+    # -----------------------------------------------------
+    # Prevent disabling own account
+    # -----------------------------------------------------
 
     if user.id == request.user.id:
 
@@ -458,7 +629,7 @@ def change_password(request):
 
         request.user.save()
 
-        # Keep the user logged in after password change
+        # Keep the user logged in
         login(
             request,
             request.user
@@ -470,9 +641,14 @@ def change_password(request):
         )
 
         if request.user.is_superuser:
-            return redirect("superuser_dashboard")
 
-        return redirect("dashboard")
+            return redirect(
+                "superuser_dashboard"
+            )
+
+        return redirect(
+            "dashboard"
+        )
 
     return render(
         request,
