@@ -1,11 +1,51 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.db.models import Case, When, IntegerField
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .models import Attendance, Employee
+
+
+# =========================================================
+# ATTENDANCE ORDER
+# =========================================================
+
+def attendance_employee_order():
+    return Case(
+        When(
+            employee__name__iexact="Chamara Pushpakumara",
+            then=1
+        ),
+        When(
+            employee__name__iexact="Nimalka",
+            then=2
+        ),
+        When(
+            employee__name__iexact="Asika",
+            then=3
+        ),
+        When(
+            employee__name__iexact="Dikwella",
+            then=4
+        ),
+        When(
+            employee__name__iexact="Jayampathe",
+            then=5
+        ),
+        When(
+            employee__name__iexact="Kaveen",
+            then=6
+        ),
+        When(
+            employee__name__iexact="Nipuna",
+            then=7
+        ),
+        default=99,
+        output_field=IntegerField(),
+    )
 
 
 # =========================================================
@@ -34,12 +74,15 @@ def employee_attendance(request):
     ).first()
 
     if not employee:
+
         messages.error(
             request,
             "Chamara employee record not found."
         )
 
-        return redirect("attendance_home")
+        return redirect(
+            "attendance_home"
+        )
 
     if request.method == "POST":
 
@@ -723,8 +766,21 @@ def attendance_history(request):
             status=status
         )
 
+    # -----------------------------------------------------
+    # CUSTOM EMPLOYEE ORDER
+    #
+    # Chamara
+    # Nimalka
+    # Asika
+    # Dikwella
+    # Jayampathe
+    # Kaveen
+    # Nipuna
+    # -----------------------------------------------------
+
     records = records.order_by(
         "-date",
+        attendance_employee_order(),
         "employee__name"
     )
 
@@ -808,8 +864,13 @@ def attendance_pdf(request):
             status=status
         )
 
+    # -----------------------------------------------------
+    # SAME CUSTOM ORDER AS ATTENDANCE HISTORY
+    # -----------------------------------------------------
+
     records = records.order_by(
         "-date",
+        attendance_employee_order(),
         "employee__name"
     )
 
