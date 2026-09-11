@@ -12,13 +12,11 @@
 
     <title>Daily Report</title>
 
-
     <style>
 
         * {
             box-sizing: border-box;
         }
-
 
         body {
             font-family: Arial, sans-serif;
@@ -28,25 +26,20 @@
             color: #333;
         }
 
-
         .container {
             max-width: 1100px;
             margin: auto;
             background: white;
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
         }
-
-
-        /* TITLE */
 
         h2 {
             text-align: center;
             margin: 0 0 25px 0;
             font-size: 26px;
         }
-
 
         /* FILTERS */
 
@@ -60,12 +53,10 @@
             border-radius: 10px;
         }
 
-
         .filter-box {
             flex: 1;
             min-width: 180px;
         }
-
 
         label {
             display: block;
@@ -73,15 +64,16 @@
             margin-bottom: 7px;
         }
 
-
-        input {
+        input[type="date"] {
             width: 100%;
             padding: 11px;
             border: 1px solid #ccc;
             border-radius: 7px;
             font-size: 15px;
+            background: white;
+            color: #333;
+            min-height: 44px;
         }
-
 
         /* BUTTONS */
 
@@ -91,7 +83,6 @@
             flex-wrap: wrap;
             margin-bottom: 25px;
         }
-
 
         button,
         .pdf-button,
@@ -106,40 +97,33 @@
             font-size: 14px;
         }
 
-
         button {
             background: #198754;
             color: white;
             margin-top: 24px;
         }
 
+        button:hover {
+            background: #157347;
+        }
 
         .pdf-button {
             background: #dc3545;
             color: white;
         }
 
+        .pdf-button:hover {
+            background: #bb2d3b;
+        }
 
         .back-button {
             background: #6c757d;
             color: white;
         }
 
-
-        button:hover {
-            background: #157347;
-        }
-
-
-        .pdf-button:hover {
-            background: #bb2d3b;
-        }
-
-
         .back-button:hover {
             background: #5c636a;
         }
-
 
         /* REPORT CARD */
 
@@ -151,7 +135,6 @@
             background: white;
         }
 
-
         .report-card-header {
             background: #198754;
             color: white;
@@ -160,17 +143,14 @@
             font-size: 16px;
         }
 
-
         .report-row {
             display: flex;
             border-bottom: 1px solid #eee;
         }
 
-
         .report-row:last-child {
             border-bottom: none;
         }
-
 
         .report-label {
             width: 180px;
@@ -180,7 +160,6 @@
             font-weight: bold;
         }
 
-
         .report-value {
             flex: 1;
             padding: 12px 15px;
@@ -188,14 +167,10 @@
             word-break: break-word;
         }
 
-
-        /* WORK TEXT */
-
         .work-text {
             white-space: pre-wrap;
             line-height: 1.6;
         }
-
 
         /* EMPTY */
 
@@ -206,7 +181,6 @@
             border: 1px solid #ddd;
             border-radius: 10px;
         }
-
 
         /* SUMMARY */
 
@@ -220,7 +194,6 @@
             text-align: center;
         }
 
-
         /* MOBILE */
 
         @media (max-width: 700px) {
@@ -229,37 +202,37 @@
                 padding: 8px;
             }
 
-
             .container {
                 padding: 12px;
                 border-radius: 10px;
                 box-shadow: none;
             }
 
-
             h2 {
                 font-size: 21px;
                 margin-bottom: 18px;
             }
-
 
             .filters {
                 display: block;
                 padding: 12px;
             }
 
-
             .filter-box {
                 width: 100%;
                 margin-bottom: 12px;
             }
 
+            input[type="date"] {
+                width: 100%;
+                min-height: 46px;
+                font-size: 16px;
+            }
 
             button {
                 width: 100%;
                 margin-top: 5px;
             }
-
 
             .actions {
                 display: flex;
@@ -267,30 +240,25 @@
                 gap: 8px;
             }
 
-
             .pdf-button,
             .back-button {
                 width: 100%;
                 text-align: center;
             }
 
-
             .report-card {
                 margin-bottom: 15px;
                 border-radius: 9px;
             }
-
 
             .report-card-header {
                 padding: 11px 12px;
                 font-size: 15px;
             }
 
-
             .report-row {
                 display: block;
             }
-
 
             .report-label {
                 width: 100%;
@@ -301,17 +269,14 @@
                 font-size: 12px;
             }
 
-
             .report-value {
                 padding: 2px 12px 12px 12px;
                 font-size: 14px;
             }
 
-
             .work-text {
                 line-height: 1.5;
             }
-
 
             .summary {
                 font-size: 14px;
@@ -326,30 +291,28 @@
 
 <body>
 
-
 <div class="container">
-
 
     <h2>
         📊 IIT Project - Daily Report
     </h2>
 
 
-    <!-- FILTERS -->
+    <!-- DATE FILTER -->
 
     <form method="GET" class="filters">
 
-
         <div class="filter-box">
 
-            <label>
+            <label for="start_date">
                 From Date
             </label>
 
             <input
                 type="date"
-                name="from_date"
-                value="{{ from_date }}"
+                id="start_date"
+                name="start_date"
+                value="{{ start_date|default:'' }}"
             >
 
         </div>
@@ -357,14 +320,15 @@
 
         <div class="filter-box">
 
-            <label>
+            <label for="end_date">
                 To Date
             </label>
 
             <input
                 type="date"
-                name="to_date"
-                value="{{ to_date }}"
+                id="end_date"
+                name="end_date"
+                value="{{ end_date|default:'' }}"
             >
 
         </div>
@@ -378,7 +342,6 @@
 
         </div>
 
-
     </form>
 
 
@@ -386,10 +349,9 @@
 
     <div class="actions">
 
-
         <a
             class="pdf-button"
-            href="{% url 'daily_report_pdf' %}{% if from_date or to_date %}?{% endif %}{% if from_date %}from_date={{ from_date }}{% endif %}{% if from_date and to_date %}&{% endif %}{% if to_date %}to_date={{ to_date }}{% endif %}"
+            href="{% url 'daily_report_pdf' %}{% if start_date or end_date %}?{% endif %}{% if start_date %}start_date={{ start_date }}{% endif %}{% if start_date and end_date %}&{% endif %}{% if end_date %}end_date={{ end_date }}{% endif %}"
         >
             📄 Download PDF
         </a>
@@ -402,21 +364,16 @@
             ← Back to IIT Project
         </a>
 
-
     </div>
 
 
-    <!-- REPORTS -->
-
+    <!-- REPORT -->
 
     {% if report_data %}
 
-
         {% for row in report_data %}
 
-
         <div class="report-card">
-
 
             <div class="report-card-header">
 
@@ -458,7 +415,7 @@
                 </div>
 
                 <div class="report-value">
-                    {{ row.total_labours }}
+                    {{ row.total_labors }}
                 </div>
 
             </div>
@@ -472,9 +429,9 @@
 
                 <div class="report-value">
 
-                    {% if row.labour_names %}
+                    {% if row.labors_name %}
 
-                        {{ row.labour_names }}
+                        {{ row.labors_name }}
 
                     {% else %}
 
@@ -509,9 +466,7 @@
 
             </div>
 
-
         </div>
-
 
         {% endfor %}
 
@@ -519,13 +474,12 @@
         <div class="summary">
 
             Total Labour Days Worked:
-            {{ report_data|length }}
+            {{ total_labour_days }}
 
         </div>
 
 
     {% else %}
-
 
         <div class="empty">
 
@@ -533,12 +487,10 @@
 
         </div>
 
-
     {% endif %}
 
 
 </div>
-
 
 </body>
 

@@ -14,7 +14,6 @@ from reportlab.platypus import (
     Spacer,
     Table,
     TableStyle,
-    KeepTogether,
 )
 
 from .models import DailyWork
@@ -27,7 +26,10 @@ from attendance.models import Attendance
 
 @login_required
 def daily_work_list(request):
-    works = DailyWork.objects.select_related("created_by").order_by(
+
+    works = DailyWork.objects.select_related(
+        "created_by"
+    ).order_by(
         "-date",
         "-created_at",
     )
@@ -56,20 +58,33 @@ def daily_work_add(request):
         valid_items = []
 
         for item in work_items:
+
             item = item.strip()
 
             if item:
                 valid_items.append(item)
 
         if not work_date:
-            messages.error(request, "Please select a date.")
 
-            return redirect("daily_work_add")
+            messages.error(
+                request,
+                "Please select a date.",
+            )
+
+            return redirect(
+                "daily_work_add"
+            )
 
         if not valid_items:
-            messages.error(request, "Please enter at least one work item.")
 
-            return redirect("daily_work_add")
+            messages.error(
+                request,
+                "Please enter at least one work item.",
+            )
+
+            return redirect(
+                "daily_work_add"
+            )
 
         for item in valid_items:
 
@@ -84,7 +99,9 @@ def daily_work_add(request):
             "Daily work saved successfully.",
         )
 
-        return redirect("daily_work_list")
+        return redirect(
+            "daily_work_list"
+        )
 
     return render(
         request,
@@ -107,7 +124,10 @@ def daily_work_edit(request, work_id):
     if request.method == "POST":
 
         work_date = request.POST.get("date")
-        work_text = request.POST.get("work", "").strip()
+        work_text = request.POST.get(
+            "work",
+            "",
+        ).strip()
 
         if not work_date or not work_text:
 
@@ -131,7 +151,9 @@ def daily_work_edit(request, work_id):
             "Daily work updated successfully.",
         )
 
-        return redirect("daily_work_list")
+        return redirect(
+            "daily_work_list"
+        )
 
     return render(
         request,
@@ -163,7 +185,9 @@ def daily_work_delete(request, work_id):
             "Daily work deleted successfully.",
         )
 
-    return redirect("daily_work_list")
+    return redirect(
+        "daily_work_list"
+    )
 
 
 # =========================================================
@@ -178,15 +202,22 @@ def daily_work_report(request):
         "-created_at",
     )
 
-    start_date = request.GET.get("start_date")
-    end_date = request.GET.get("end_date")
+    start_date = request.GET.get(
+        "start_date"
+    )
+
+    end_date = request.GET.get(
+        "end_date"
+    )
 
     if start_date:
+
         works = works.filter(
             date__gte=start_date,
         )
 
     if end_date:
+
         works = works.filter(
             date__lte=end_date,
         )
@@ -211,9 +242,20 @@ def clean_work_text(text):
     if not text:
         return ""
 
-    text = text.replace("<br>", "\n")
-    text = text.replace("<br/>", "\n")
-    text = text.replace("<br />", "\n")
+    text = text.replace(
+        "<br>",
+        "\n",
+    )
+
+    text = text.replace(
+        "<br/>",
+        "\n",
+    )
+
+    text = text.replace(
+        "<br />",
+        "\n",
+    )
 
     lines = []
 
@@ -233,7 +275,9 @@ def clean_work_text(text):
 
 def format_work_description(text):
 
-    text = clean_work_text(text)
+    text = clean_work_text(
+        text
+    )
 
     if not text:
         return ""
@@ -256,7 +300,11 @@ def format_work_description(text):
     ]
 
     for old, new in replacements:
-        text = text.replace(old, new)
+
+        text = text.replace(
+            old,
+            new,
+        )
 
     lines = []
 
@@ -284,15 +332,22 @@ def daily_work_pdf(request):
         "created_at",
     )
 
-    start_date = request.GET.get("start_date")
-    end_date = request.GET.get("end_date")
+    start_date = request.GET.get(
+        "start_date"
+    )
+
+    end_date = request.GET.get(
+        "end_date"
+    )
 
     if start_date:
+
         works = works.filter(
             date__gte=start_date,
         )
 
     if end_date:
+
         works = works.filter(
             date__lte=end_date,
         )
@@ -376,13 +431,22 @@ def daily_work_pdf(request):
         )
 
         story.append(
-            Spacer(1, 8)
+            Spacer(
+                1,
+                8,
+            )
         )
 
     table_data = [
         [
-            Paragraph("Date", heading_style),
-            Paragraph("Work", heading_style),
+            Paragraph(
+                "Date",
+                heading_style,
+            ),
+            Paragraph(
+                "Work",
+                heading_style,
+            ),
         ]
     ]
 
@@ -393,7 +457,10 @@ def daily_work_pdf(request):
         )
 
         work_paragraph = Paragraph(
-            formatted_work.replace("\n", "<br/>"),
+            formatted_work.replace(
+                "\n",
+                "<br/>",
+            ),
             normal_style,
         )
 
@@ -411,7 +478,10 @@ def daily_work_pdf(request):
 
         table_data.append(
             [
-                Paragraph("-", normal_style),
+                Paragraph(
+                    "-",
+                    normal_style,
+                ),
                 Paragraph(
                     "No daily work records found.",
                     normal_style,
@@ -435,7 +505,9 @@ def daily_work_pdf(request):
                     "BACKGROUND",
                     (0, 0),
                     (-1, 0),
-                    colors.HexColor("#198754"),
+                    colors.HexColor(
+                        "#198754"
+                    ),
                 ),
                 (
                     "TEXTCOLOR",
@@ -484,9 +556,13 @@ def daily_work_pdf(request):
         )
     )
 
-    story.append(table)
+    story.append(
+        table
+    )
 
-    document.build(story)
+    document.build(
+        story
+    )
 
     return response
 
@@ -498,8 +574,13 @@ def daily_work_pdf(request):
 @login_required
 def daily_report(request):
 
-    start_date = request.GET.get("start_date")
-    end_date = request.GET.get("end_date")
+    start_date = request.GET.get(
+        "start_date"
+    )
+
+    end_date = request.GET.get(
+        "end_date"
+    )
 
     works = DailyWork.objects.all().order_by(
         "date",
@@ -515,6 +596,10 @@ def daily_report(request):
         "date",
         "employee__name",
     )
+
+    # -----------------------------------------------------
+    # DATE FILTER
+    # -----------------------------------------------------
 
     if start_date:
 
@@ -536,13 +621,16 @@ def daily_report(request):
             date__lte=end_date,
         )
 
-    report_data = []
+    # -----------------------------------------------------
+    # WORK BY DATE
+    # -----------------------------------------------------
 
     work_by_date = {}
 
     for work in works:
 
         if work.date not in work_by_date:
+
             work_by_date[work.date] = []
 
         formatted = format_work_description(
@@ -550,28 +638,51 @@ def daily_report(request):
         )
 
         if formatted:
+
             work_by_date[work.date].append(
                 formatted
             )
+
+    # -----------------------------------------------------
+    # LABOUR BY DATE
+    # -----------------------------------------------------
 
     attendance_by_date = {}
 
     for record in attendance_records:
 
         if record.date not in attendance_by_date:
+
             attendance_by_date[record.date] = []
 
         employee_name = record.employee.name
 
-        if employee_name not in attendance_by_date[record.date]:
-            attendance_by_date[record.date].append(
+        if employee_name not in attendance_by_date[
+            record.date
+        ]:
+
+            attendance_by_date[
+                record.date
+            ].append(
                 employee_name
             )
+
+    # -----------------------------------------------------
+    # ALL DATES
+    # -----------------------------------------------------
 
     all_dates = sorted(
         set(work_by_date.keys())
         | set(attendance_by_date.keys())
     )
+
+    # -----------------------------------------------------
+    # REPORT DATA
+    # -----------------------------------------------------
+
+    report_data = []
+
+    total_labour_days = 0
 
     for report_date in all_dates:
 
@@ -585,11 +696,17 @@ def daily_report(request):
             [],
         )
 
+        total_labors = len(
+            labour_names
+        )
+
+        total_labour_days += total_labors
+
         report_data.append(
             {
                 "project": "IIT Project",
                 "date": report_date,
-                "total_labors": len(labour_names),
+                "total_labors": total_labors,
                 "labors_name": ", ".join(
                     labour_names
                 ),
@@ -599,6 +716,10 @@ def daily_report(request):
             }
         )
 
+    # -----------------------------------------------------
+    # PAGE
+    # -----------------------------------------------------
+
     return render(
         request,
         "dailyworks/daily_report.html",
@@ -606,6 +727,7 @@ def daily_report(request):
             "report_data": report_data,
             "start_date": start_date,
             "end_date": end_date,
+            "total_labour_days": total_labour_days,
         },
     )
 
@@ -617,8 +739,13 @@ def daily_report(request):
 @login_required
 def daily_report_pdf(request):
 
-    start_date = request.GET.get("start_date")
-    end_date = request.GET.get("end_date")
+    start_date = request.GET.get(
+        "start_date"
+    )
+
+    end_date = request.GET.get(
+        "end_date"
+    )
 
     works = DailyWork.objects.all().order_by(
         "date",
@@ -634,6 +761,10 @@ def daily_report_pdf(request):
         "date",
         "employee__name",
     )
+
+    # -----------------------------------------------------
+    # DATE FILTER
+    # -----------------------------------------------------
 
     if start_date:
 
@@ -656,7 +787,7 @@ def daily_report_pdf(request):
         )
 
     # -----------------------------------------------------
-    # GROUP WORK BY DATE
+    # WORK BY DATE
     # -----------------------------------------------------
 
     work_by_date = {}
@@ -664,6 +795,7 @@ def daily_report_pdf(request):
     for work in works:
 
         if work.date not in work_by_date:
+
             work_by_date[work.date] = []
 
         formatted = format_work_description(
@@ -671,12 +803,13 @@ def daily_report_pdf(request):
         )
 
         if formatted:
+
             work_by_date[work.date].append(
                 formatted
             )
 
     # -----------------------------------------------------
-    # GROUP LABOURS BY DATE
+    # LABOUR BY DATE
     # -----------------------------------------------------
 
     attendance_by_date = {}
@@ -684,12 +817,18 @@ def daily_report_pdf(request):
     for record in attendance_records:
 
         if record.date not in attendance_by_date:
+
             attendance_by_date[record.date] = []
 
         employee_name = record.employee.name
 
-        if employee_name not in attendance_by_date[record.date]:
-            attendance_by_date[record.date].append(
+        if employee_name not in attendance_by_date[
+            record.date
+        ]:
+
+            attendance_by_date[
+                record.date
+            ].append(
                 employee_name
             )
 
@@ -718,42 +857,46 @@ def daily_report_pdf(request):
     # LANDSCAPE A4
     #
     # A4 landscape width = 297 mm
-    # Margins = 8 mm + 8 mm
-    # Available width = 281 mm
+    #
+    # Margins:
+    # Left  = 6 mm
+    # Right = 6 mm
+    #
+    # Available width = 285 mm
     #
     # Columns:
-    # 35 + 27 + 30 + 70 + 119 = 281 mm
+    # 34 + 27 + 30 + 70 + 124 = 285 mm
     # -----------------------------------------------------
 
     document = SimpleDocTemplate(
         response,
         pagesize=landscape(A4),
-        rightMargin=8 * mm,
-        leftMargin=8 * mm,
-        topMargin=8 * mm,
-        bottomMargin=8 * mm,
+        rightMargin=6 * mm,
+        leftMargin=6 * mm,
+        topMargin=6 * mm,
+        bottomMargin=6 * mm,
     )
 
     # -----------------------------------------------------
-    # STYLES
+    # PDF STYLES
     # -----------------------------------------------------
 
     title_style = ParagraphStyle(
         "DailyReportTitle",
         fontName="Helvetica-Bold",
-        fontSize=17,
-        leading=20,
+        fontSize=18,
+        leading=21,
         alignment=TA_CENTER,
-        spaceAfter=6,
+        spaceAfter=5,
     )
 
     period_style = ParagraphStyle(
         "DailyReportPeriod",
         fontName="Helvetica",
         fontSize=10,
-        leading=13,
+        leading=12,
         alignment=TA_CENTER,
-        spaceAfter=10,
+        spaceAfter=8,
     )
 
     header_style = ParagraphStyle(
@@ -882,9 +1025,11 @@ def daily_report_pdf(request):
             [],
         )
 
-        total_labour = len(labour_names)
+        total_labours = len(
+            labour_names
+        )
 
-        total_labour_days += total_labour
+        total_labour_days += total_labours
 
         labour_text = ", ".join(
             labour_names
@@ -895,46 +1040,38 @@ def daily_report_pdf(request):
         )
 
         if not labour_text:
+
             labour_text = "-"
 
         if not work_text:
+
             work_text = "-"
-
-        project_paragraph = Paragraph(
-            "IIT Project",
-            cell_style,
-        )
-
-        date_paragraph = Paragraph(
-            str(report_date),
-            center_cell_style,
-        )
-
-        labour_count_paragraph = Paragraph(
-            str(total_labour),
-            center_cell_style,
-        )
-
-        labour_name_paragraph = Paragraph(
-            labour_text,
-            cell_style,
-        )
-
-        work_paragraph = Paragraph(
-            work_text.replace(
-                "\n",
-                "<br/>",
-            ),
-            cell_style,
-        )
 
         table_data.append(
             [
-                project_paragraph,
-                date_paragraph,
-                labour_count_paragraph,
-                labour_name_paragraph,
-                work_paragraph,
+                Paragraph(
+                    "IIT Project",
+                    cell_style,
+                ),
+                Paragraph(
+                    str(report_date),
+                    center_cell_style,
+                ),
+                Paragraph(
+                    str(total_labours),
+                    center_cell_style,
+                ),
+                Paragraph(
+                    labour_text,
+                    cell_style,
+                ),
+                Paragraph(
+                    work_text.replace(
+                        "\n",
+                        "<br/>",
+                    ),
+                    cell_style,
+                ),
             ]
         )
 
@@ -966,21 +1103,17 @@ def daily_report_pdf(request):
         )
 
     # -----------------------------------------------------
-    # TABLE WIDTH
-    # -----------------------------------------------------
-    # Total = 281 mm
-    # Available landscape A4 width with 8mm margins:
-    # 297 - 8 - 8 = 281 mm
+    # MAIN TABLE
     # -----------------------------------------------------
 
     main_table = Table(
         table_data,
         colWidths=[
-            35 * mm,
+            34 * mm,
             27 * mm,
             30 * mm,
             70 * mm,
-            119 * mm,
+            124 * mm,
         ],
         repeatRows=1,
         hAlign="LEFT",
@@ -993,7 +1126,9 @@ def daily_report_pdf(request):
                     "BACKGROUND",
                     (0, 0),
                     (-1, 0),
-                    colors.HexColor("#198754"),
+                    colors.HexColor(
+                        "#198754"
+                    ),
                 ),
                 (
                     "TEXTCOLOR",
@@ -1036,13 +1171,13 @@ def daily_report_pdf(request):
                     "TOPPADDING",
                     (0, 0),
                     (-1, -1),
-                    5,
+                    6,
                 ),
                 (
                     "BOTTOMPADDING",
                     (0, 0),
                     (-1, -1),
-                    5,
+                    6,
                 ),
                 (
                     "ALIGN",
@@ -1105,7 +1240,9 @@ def daily_report_pdf(request):
                     "BACKGROUND",
                     (0, 0),
                     (0, 0),
-                    colors.HexColor("#e9f7ef"),
+                    colors.HexColor(
+                        "#e9f7ef"
+                    ),
                 ),
                 (
                     "VALIGN",
@@ -1154,8 +1291,3 @@ def daily_report_pdf(request):
     )
 
     return response
-
-
-# =========================================================
-# DAILY REPORT PDF - END
-# =========================================================
