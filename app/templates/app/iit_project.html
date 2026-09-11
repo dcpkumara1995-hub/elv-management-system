@@ -196,6 +196,15 @@
         }
 
 
+        /* DAILY REPORT */
+
+        .daily-report-card {
+
+            border-top:
+                4px solid #0d6efd;
+        }
+
+
         /* MOBILE */
 
         @media (max-width: 600px) {
@@ -275,7 +284,7 @@
         <div class="project-title">
 
             <h2>
-                🏢 IIT Project
+                🏗️ IIT Project
             </h2>
 
             <p>
@@ -344,7 +353,7 @@
             >
 
                 <div class="icon">
-                    📑
+                    📄
                 </div>
 
                 <h3>
@@ -401,6 +410,30 @@
                     Record daily work activities,
                     edit work items and generate
                     daily work reports.
+                </p>
+
+            </a>
+
+
+            <!-- DAILY REPORT -->
+
+            <a
+                href="{% url 'daily_report' %}"
+                class="card daily-report-card"
+            >
+
+                <div class="icon">
+                    📊
+                </div>
+
+                <h3>
+                    Daily Report
+                </h3>
+
+                <p>
+                    View daily IIT Project work,
+                    labour details and download
+                    the report as PDF.
                 </p>
 
             </a>

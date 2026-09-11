@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Daily Report</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .filter-box {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        button,
+        .pdf-button,
+        .back-button {
+            display: inline-block;
+            padding: 11px 18px;
+            border: none;
+            border-radius: 7px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 24px;
+        }
+
+        button {
+            background: #198754;
+            color: white;
+        }
+
+        .pdf-button {
+            background: #dc3545;
+            color: white;
+        }
+
+        .back-button {
+            background: #6c757d;
+            color: white;
+        }
+
+        button:hover {
+            background: #157347;
+        }
+
+        .pdf-button:hover {
+            background: #bb2d3b;
+        }
+
+        .back-button:hover {
+            background: #5c636a;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #198754;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #d1e7dd;
+            color: #0f5132;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 700px) {
+
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            th,
+            td {
+                font-size: 13px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>📊 IIT Project - Daily Report</h2>
+
+
+    <form method="GET" class="filters">
+
+        <div class="filter-box">
+
+            <label>From Date</label>
+
+            <input
+                type="date"
+                name="from_date"
+                value="{{ from_date }}"
+            >
+
+        </div>
+
+
+        <div class="filter-box">
+
+            <label>To Date</label>
+
+            <input
+                type="date"
+                name="to_date"
+                value="{{ to_date }}"
+            >
+
+        </div>
+
+
+        <div>
+
+            <button type="submit">
+                Generate Report
+            </button>
+
+        </div>
+
+    </form>
+
+
+    <div class="actions">
+
+        <a
+            class="pdf-button"
+            href="{% url 'daily_report_pdf' %}{% if from_date or to_date %}?{% endif %}{% if from_date %}from_date={{ from_date }}{% endif %}{% if from_date and to_date %}&{% endif %}{% if to_date %}to_date={{ to_date }}{% endif %}"
+        >
+            📄 Download PDF
+        </a>
+
+
+        <a
+            class="back-button"
+            href="/iit-project/"
+        >
+            ← Back to IIT Project
+        </a>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Project</th>
+
+                    <th>Date</th>
+
+                    <th>Total Labors</th>
+
+                    <th>Labors Name</th>
+
+                    <th>Work</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% if report_data %}
+
+                    {% for row in report_data %}
+
+                    <tr>
+
+                        <td>
+                            {{ row.project }}
+                        </td>
+
+                        <td>
+                            {{ row.date|date:"Y-m-d" }}
+                        </td>
+
+                        <td>
+                            {{ row.total_labours }}
+                        </td>
+
+                        <td>
+                            {% if row.labour_names %}
+                                {{ row.labour_names }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if row.work %}
+                                {{ row.work }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="5" class="empty">
+
+                            No daily report records found.
+
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% if report_data %}
+
+        <div class="summary">
+
+            Total Labour Days Worked:
+            {{ report_data|length }}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+
+</html>

@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import (
@@ -18,6 +18,7 @@ from reportlab.platypus import (
 )
 
 from .models import DailyWork
+from attendance.models import Attendance
 
 
 # =========================================================
@@ -231,13 +232,10 @@ def daily_work_report(request):
 
 
 # =========================================================
-# PDF HELPER
+# CLEAN WORK TEXT
 # =========================================================
 
 def clean_work_text(text):
-    """
-    Clean common HTML-like line breaks and extra spaces.
-    """
 
     if not text:
         return ""
@@ -260,22 +258,11 @@ def clean_work_text(text):
     return "\n".join(lines)
 
 
+# =========================================================
+# FORMAT WORK DESCRIPTION
+# =========================================================
+
 def format_work_description(text):
-    """
-    Converts a work description into readable PDF lines.
-
-    Example:
-
-    Pulling CAT cable 1F zone4. ( CCTV points= 4, Wifi points= 8,
-    RFID points= 4 )
-
-    becomes:
-
-    Pulling CAT cable 1F Zone 4
-    • CCTV Points – 4
-    • WiFi Points – 8
-    • RFID Points – 4
-    """
 
     text = clean_work_text(text)
 
@@ -283,10 +270,6 @@ def format_work_description(text):
         return []
 
     lines = []
-
-    # -----------------------------------------------------
-    # If the user already entered multiple lines
-    # -----------------------------------------------------
 
     if "\n" in text:
 
@@ -300,10 +283,6 @@ def format_work_description(text):
             lines.append(line)
 
         return lines
-
-    # -----------------------------------------------------
-    # Extract point counts from brackets
-    # -----------------------------------------------------
 
     import re
 
@@ -340,10 +319,6 @@ def format_work_description(text):
 
             point_values[label] = match.group(1)
 
-    # -----------------------------------------------------
-    # Remove bracket section containing point information
-    # -----------------------------------------------------
-
     main_text = re.sub(
         r"\([^)]*(?:points?|CCTV|WiFi|RFID)[^)]*\)",
         "",
@@ -351,19 +326,11 @@ def format_work_description(text):
         flags=re.IGNORECASE
     ).strip()
 
-    # -----------------------------------------------------
-    # Remove trailing extra spaces / punctuation
-    # -----------------------------------------------------
-
     main_text = re.sub(
         r"\s+",
         " ",
         main_text
     ).strip()
-
-    # -----------------------------------------------------
-    # Capitalize common location words
-    # -----------------------------------------------------
 
     replacements = [
         (
@@ -419,16 +386,11 @@ def format_work_description(text):
 
     if main_text:
 
-        # Remove final unnecessary period
         main_text = main_text.rstrip(".")
 
         lines.append(
             main_text
         )
-
-    # -----------------------------------------------------
-    # Add separate point lines
-    # -----------------------------------------------------
 
     point_order = [
         "CCTV Points",
@@ -483,10 +445,6 @@ def daily_work_pdf(request):
             date__lte=to_date
         )
 
-    # -----------------------------------------------------
-    # PDF RESPONSE
-    # -----------------------------------------------------
-
     response = HttpResponse(
         content_type="application/pdf"
     )
@@ -495,24 +453,14 @@ def daily_work_pdf(request):
         "Content-Disposition"
     ] = 'inline; filename="daily_work_report.pdf"'
 
-    # -----------------------------------------------------
-    # PAGE SETTINGS
-    # -----------------------------------------------------
-
     document = SimpleDocTemplate(
         response,
         pagesize=A4,
-
         rightMargin=14 * mm,
         leftMargin=14 * mm,
-
         topMargin=14 * mm,
         bottomMargin=14 * mm
     )
-
-    # -----------------------------------------------------
-    # COLORS
-    # -----------------------------------------------------
 
     dark_green = colors.HexColor(
         "#146C43"
@@ -540,129 +488,80 @@ def daily_work_pdf(request):
 
     white = colors.white
 
-    # -----------------------------------------------------
-    # STYLES
-    # -----------------------------------------------------
-
     title_style = ParagraphStyle(
         "ReportTitle",
-
         fontName="Helvetica-Bold",
-
         fontSize=18,
-
         leading=22,
-
         alignment=TA_CENTER,
-
         textColor=dark_green,
-
         spaceAfter=5
     )
 
     period_style = ParagraphStyle(
         "Period",
-
         fontName="Helvetica",
-
         fontSize=9,
-
         leading=12,
-
         alignment=TA_CENTER,
-
         textColor=grey_text,
-
         spaceAfter=12
     )
 
     date_style = ParagraphStyle(
         "Date",
-
         fontName="Helvetica-Bold",
-
         fontSize=12,
-
         leading=15,
-
         textColor=dark_green
     )
 
     creator_style = ParagraphStyle(
         "Creator",
-
         fontName="Helvetica",
-
         fontSize=9,
-
         leading=12,
-
         textColor=grey_text
     )
 
     work_number_style = ParagraphStyle(
         "WorkNumber",
-
         fontName="Helvetica-Bold",
-
         fontSize=10,
-
         leading=13,
-
         textColor=white,
-
         alignment=TA_LEFT
     )
 
     work_description_style = ParagraphStyle(
         "WorkDescription",
-
         fontName="Helvetica",
-
         fontSize=10,
-
         leading=15,
-
         textColor=dark_text,
-
         alignment=TA_LEFT
     )
 
     point_style = ParagraphStyle(
         "Point",
-
         fontName="Helvetica",
-
         fontSize=9.5,
-
         leading=14,
-
         leftIndent=8,
-
         textColor=dark_text,
-
         alignment=TA_LEFT
     )
 
     no_data_style = ParagraphStyle(
         "NoData",
-
         fontName="Helvetica",
-
         fontSize=10,
-
         leading=14,
-
         textColor=grey_text,
-
         alignment=TA_CENTER
     )
 
     elements = []
-
-    # =====================================================
-    # TITLE
-    # =====================================================
 
     elements.append(
         Paragraph(
@@ -670,10 +569,6 @@ def daily_work_pdf(request):
             title_style
         )
     )
-
-    # -----------------------------------------------------
-    # PERIOD
-    # -----------------------------------------------------
 
     if from_date or to_date:
 
@@ -703,10 +598,6 @@ def daily_work_pdf(request):
             period_style
         )
     )
-
-    # =====================================================
-    # NO RECORDS
-    # =====================================================
 
     if not works.exists():
 
@@ -766,10 +657,6 @@ def daily_work_pdf(request):
 
         return response
 
-    # =====================================================
-    # GROUP WORKS BY DATE
-    # =====================================================
-
     grouped = {}
 
     for item in works:
@@ -784,17 +671,12 @@ def daily_work_pdf(request):
             item
         )
 
-    # =====================================================
-    # BUILD EACH DATE SECTION
-    # =====================================================
-
-    for date_index, (work_date, date_works) in enumerate(
+    for date_index, (
+        work_date,
+        date_works
+    ) in enumerate(
         grouped.items()
     ):
-
-        # -------------------------------------------------
-        # DATE + CREATOR
-        # -------------------------------------------------
 
         first_item = date_works[0]
 
@@ -819,7 +701,6 @@ def daily_work_pdf(request):
                     f"Date: {date_text}",
                     date_style
                 ),
-
                 Paragraph(
                     f"Created By: {created_by}",
                     creator_style
@@ -829,7 +710,6 @@ def daily_work_pdf(request):
 
         header_table = Table(
             header_data,
-
             colWidths=[
                 90 * mm,
                 90 * mm
@@ -845,7 +725,6 @@ def daily_work_pdf(request):
                         (-1, -1),
                         light_green
                     ),
-
                     (
                         "BOX",
                         (0, 0),
@@ -853,35 +732,30 @@ def daily_work_pdf(request):
                         0.8,
                         border_green
                     ),
-
                     (
                         "VALIGN",
                         (0, 0),
                         (-1, -1),
                         "MIDDLE"
                     ),
-
                     (
                         "LEFTPADDING",
                         (0, 0),
                         (-1, -1),
                         10
                     ),
-
                     (
                         "RIGHTPADDING",
                         (0, 0),
                         (-1, -1),
                         10
                     ),
-
                     (
                         "TOPPADDING",
                         (0, 0),
                         (-1, -1),
                         8
                     ),
-
                     (
                         "BOTTOMPADDING",
                         (0, 0),
@@ -903,10 +777,6 @@ def daily_work_pdf(request):
             )
         )
 
-        # -------------------------------------------------
-        # WORK ITEMS
-        # -------------------------------------------------
-
         for index, item in enumerate(
             date_works,
             start=1
@@ -918,9 +788,7 @@ def daily_work_pdf(request):
 
             description_elements = []
 
-            for line_number, line in enumerate(
-                work_lines
-            ):
+            for line in work_lines:
 
                 safe_line = (
                     line
@@ -965,10 +833,6 @@ def daily_work_pdf(request):
                     )
                 )
 
-            # ---------------------------------------------
-            # WORK NUMBER
-            # ---------------------------------------------
-
             work_number = (
                 f"WORK {index:02d}"
             )
@@ -982,7 +846,6 @@ def daily_work_pdf(request):
                         )
                     ]
                 ],
-
                 colWidths=[
                     180 * mm
                 ]
@@ -997,28 +860,24 @@ def daily_work_pdf(request):
                             (-1, -1),
                             dark_green
                         ),
-
                         (
                             "LEFTPADDING",
                             (0, 0),
                             (-1, -1),
                             10
                         ),
-
                         (
                             "RIGHTPADDING",
                             (0, 0),
                             (-1, -1),
                             10
                         ),
-
                         (
                             "TOPPADDING",
                             (0, 0),
                             (-1, -1),
                             6
                         ),
-
                         (
                             "BOTTOMPADDING",
                             (0, 0),
@@ -1029,17 +888,12 @@ def daily_work_pdf(request):
                 )
             )
 
-            # ---------------------------------------------
-            # DESCRIPTION BOX
-            # ---------------------------------------------
-
             description_table = Table(
                 [
                     [
                         description_elements
                     ]
                 ],
-
                 colWidths=[
                     180 * mm
                 ]
@@ -1054,7 +908,6 @@ def daily_work_pdf(request):
                             (-1, -1),
                             white
                         ),
-
                         (
                             "BOX",
                             (0, 0),
@@ -1062,35 +915,30 @@ def daily_work_pdf(request):
                             0.7,
                             border_green
                         ),
-
                         (
                             "LEFTPADDING",
                             (0, 0),
                             (-1, -1),
                             10
                         ),
-
                         (
                             "RIGHTPADDING",
                             (0, 0),
                             (-1, -1),
                             10
                         ),
-
                         (
                             "TOPPADDING",
                             (0, 0),
                             (-1, -1),
                             9
                         ),
-
                         (
                             "BOTTOMPADDING",
                             (0, 0),
                             (-1, -1),
                             9
                         ),
-
                         (
                             "VALIGN",
                             (0, 0),
@@ -1100,10 +948,6 @@ def daily_work_pdf(request):
                     ]
                 )
             )
-
-            # ---------------------------------------------
-            # KEEP WORK NUMBER + DESCRIPTION TOGETHER
-            # ---------------------------------------------
 
             elements.append(
                 KeepTogether(
@@ -1121,11 +965,7 @@ def daily_work_pdf(request):
                 )
             )
 
-        # -------------------------------------------------
-        # SPACE BETWEEN DATES
-        # -------------------------------------------------
-
-        if date_index < len(grouped):
+        if date_index < len(grouped) - 1:
 
             elements.append(
                 Spacer(
@@ -1134,9 +974,628 @@ def daily_work_pdf(request):
                 )
             )
 
-    # =====================================================
-    # BUILD PDF
-    # =====================================================
+    document.build(
+        elements
+    )
+
+    return response
+
+
+# =========================================================
+# DAILY REPORT
+# =========================================================
+
+@login_required(login_url="/login/")
+def daily_report(request):
+
+    from_date = request.GET.get(
+        "from_date",
+        ""
+    )
+
+    to_date = request.GET.get(
+        "to_date",
+        ""
+    )
+
+    works = DailyWork.objects.all()
+
+    labour_records = Attendance.objects.filter(
+        employee__role="LABOUR",
+        project="IIT Project",
+        status="WORKED"
+    ).select_related(
+        "employee"
+    )
+
+    if from_date:
+
+        works = works.filter(
+            date__gte=from_date
+        )
+
+        labour_records = labour_records.filter(
+            date__gte=from_date
+        )
+
+    if to_date:
+
+        works = works.filter(
+            date__lte=to_date
+        )
+
+        labour_records = labour_records.filter(
+            date__lte=to_date
+        )
+
+    works = works.order_by(
+        "date",
+        "created_at"
+    )
+
+    labour_records = labour_records.order_by(
+        "date",
+        "employee__name"
+    )
+
+    dates = sorted(
+        set(
+            list(
+                works.values_list(
+                    "date",
+                    flat=True
+                )
+            )
+            +
+            list(
+                labour_records.values_list(
+                    "date",
+                    flat=True
+                )
+            )
+        ),
+        reverse=True
+    )
+
+    report_data = []
+
+    for report_date in dates:
+
+        date_works = works.filter(
+            date=report_date
+        )
+
+        date_labours = labour_records.filter(
+            date=report_date
+        ).order_by(
+            "employee__name"
+        )
+
+        labour_names = [
+            record.employee.name
+            for record in date_labours
+        ]
+
+        work_text = " | ".join(
+            work.work
+            for work in date_works
+        )
+
+        report_data.append(
+            {
+                "project": "IIT Project",
+                "date": report_date,
+                "total_labours": len(
+                    labour_names
+                ),
+                "labour_names": ", ".join(
+                    labour_names
+                ),
+                "work": work_text,
+            }
+        )
+
+    return render(
+        request,
+        "dailyworks/daily_report.html",
+        {
+            "report_data": report_data,
+            "from_date": from_date,
+            "to_date": to_date,
+        }
+    )
+
+
+# =========================================================
+# DAILY REPORT PDF
+# =========================================================
+
+@login_required(login_url="/login/")
+def daily_report_pdf(request):
+
+    from_date = request.GET.get(
+        "from_date",
+        ""
+    )
+
+    to_date = request.GET.get(
+        "to_date",
+        ""
+    )
+
+    works = DailyWork.objects.all()
+
+    labour_records = Attendance.objects.filter(
+        employee__role="LABOUR",
+        project="IIT Project",
+        status="WORKED"
+    ).select_related(
+        "employee"
+    )
+
+    if from_date:
+
+        works = works.filter(
+            date__gte=from_date
+        )
+
+        labour_records = labour_records.filter(
+            date__gte=from_date
+        )
+
+    if to_date:
+
+        works = works.filter(
+            date__lte=to_date
+        )
+
+        labour_records = labour_records.filter(
+            date__lte=to_date
+        )
+
+    works = works.order_by(
+        "date",
+        "created_at"
+    )
+
+    labour_records = labour_records.order_by(
+        "date",
+        "employee__name"
+    )
+
+    dates = sorted(
+        set(
+            list(
+                works.values_list(
+                    "date",
+                    flat=True
+                )
+            )
+            +
+            list(
+                labour_records.values_list(
+                    "date",
+                    flat=True
+                )
+            )
+        ),
+        reverse=True
+    )
+
+    response = HttpResponse(
+        content_type="application/pdf"
+    )
+
+    response[
+        "Content-Disposition"
+    ] = (
+        'inline; '
+        'filename="daily_report.pdf"'
+    )
+
+    document = SimpleDocTemplate(
+        response,
+        pagesize=landscape(A4),
+        rightMargin=12 * mm,
+        leftMargin=12 * mm,
+        topMargin=12 * mm,
+        bottomMargin=12 * mm
+    )
+
+    dark_green = colors.HexColor(
+        "#146C43"
+    )
+
+    light_green = colors.HexColor(
+        "#EAF6EF"
+    )
+
+    border_green = colors.HexColor(
+        "#B7DCC6"
+    )
+
+    dark_text = colors.HexColor(
+        "#202124"
+    )
+
+    grey_text = colors.HexColor(
+        "#666666"
+    )
+
+    white = colors.white
+
+    title_style = ParagraphStyle(
+        "DailyReportTitle",
+        fontName="Helvetica-Bold",
+        fontSize=18,
+        leading=22,
+        alignment=TA_CENTER,
+        textColor=dark_green,
+        spaceAfter=5
+    )
+
+    period_style = ParagraphStyle(
+        "DailyReportPeriod",
+        fontName="Helvetica",
+        fontSize=9,
+        leading=12,
+        alignment=TA_CENTER,
+        textColor=grey_text,
+        spaceAfter=12
+    )
+
+    cell_style = ParagraphStyle(
+        "DailyReportCell",
+        fontName="Helvetica",
+        fontSize=8.5,
+        leading=11,
+        textColor=dark_text
+    )
+
+    header_style = ParagraphStyle(
+        "DailyReportHeader",
+        fontName="Helvetica-Bold",
+        fontSize=8.5,
+        leading=11,
+        textColor=white,
+        alignment=TA_CENTER
+    )
+
+    no_data_style = ParagraphStyle(
+        "DailyReportNoData",
+        fontName="Helvetica",
+        fontSize=10,
+        leading=14,
+        textColor=grey_text,
+        alignment=TA_CENTER
+    )
+
+    elements = []
+
+    # -----------------------------------------------------
+    # TITLE
+    # -----------------------------------------------------
+
+    elements.append(
+        Paragraph(
+            "IIT PROJECT - DAILY REPORT",
+            title_style
+        )
+    )
+
+    # -----------------------------------------------------
+    # PERIOD
+    # -----------------------------------------------------
+
+    if from_date or to_date:
+
+        display_from = (
+            from_date
+            if from_date
+            else "All"
+        )
+
+        display_to = (
+            to_date
+            if to_date
+            else "All"
+        )
+
+        period_text = (
+            f"Period: {display_from} to {display_to}"
+        )
+
+    else:
+
+        period_text = "Period: All Records"
+
+    elements.append(
+        Paragraph(
+            period_text,
+            period_style
+        )
+    )
+
+    # -----------------------------------------------------
+    # TABLE
+    # -----------------------------------------------------
+
+    data = [
+        [
+            Paragraph(
+                "Project",
+                header_style
+            ),
+            Paragraph(
+                "Date",
+                header_style
+            ),
+            Paragraph(
+                "Total Labors",
+                header_style
+            ),
+            Paragraph(
+                "Labors Name",
+                header_style
+            ),
+            Paragraph(
+                "Work",
+                header_style
+            ),
+        ]
+    ]
+
+    for report_date in dates:
+
+        date_works = works.filter(
+            date=report_date
+        )
+
+        date_labours = labour_records.filter(
+            date=report_date
+        ).order_by(
+            "employee__name"
+        )
+
+        labour_names = [
+            record.employee.name
+            for record in date_labours
+        ]
+
+        work_text = " | ".join(
+            work.work
+            for work in date_works
+        )
+
+        if not work_text:
+
+            work_text = "-"
+
+        if not labour_names:
+
+            labour_text = "-"
+
+        else:
+
+            labour_text = ", ".join(
+                labour_names
+            )
+
+        data.append(
+            [
+                Paragraph(
+                    "IIT Project",
+                    cell_style
+                ),
+                Paragraph(
+                    str(report_date),
+                    cell_style
+                ),
+                Paragraph(
+                    str(len(labour_names)),
+                    cell_style
+                ),
+                Paragraph(
+                    labour_text,
+                    cell_style
+                ),
+                Paragraph(
+                    work_text,
+                    cell_style
+                ),
+            ]
+        )
+
+    if len(data) == 1:
+
+        data.append(
+            [
+                Paragraph(
+                    "IIT Project",
+                    cell_style
+                ),
+                Paragraph(
+                    "-",
+                    cell_style
+                ),
+                Paragraph(
+                    "0",
+                    cell_style
+                ),
+                Paragraph(
+                    "-",
+                    cell_style
+                ),
+                Paragraph(
+                    "No records found.",
+                    cell_style
+                ),
+            ]
+        )
+
+    table = Table(
+        data,
+        colWidths=[
+            32 * mm,
+            25 * mm,
+            28 * mm,
+            65 * mm,
+            115 * mm,
+        ],
+        repeatRows=1
+    )
+
+    table.setStyle(
+        TableStyle(
+            [
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    dark_green
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 0),
+                    (-1, 0),
+                    white
+                ),
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    0.5,
+                    border_green
+                ),
+                (
+                    "VALIGN",
+                    (0, 0),
+                    (-1, -1),
+                    "TOP"
+                ),
+                (
+                    "BACKGROUND",
+                    (0, 1),
+                    (-1, -1),
+                    white
+                ),
+                (
+                    "LEFTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    5
+                ),
+                (
+                    "RIGHTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    5
+                ),
+                (
+                    "TOPPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    6
+                ),
+                (
+                    "BOTTOMPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    6
+                ),
+            ]
+        )
+    )
+
+    elements.append(
+        table
+    )
+
+    elements.append(
+        Spacer(
+            1,
+            10
+        )
+    )
+
+    # -----------------------------------------------------
+    # SUMMARY
+    # -----------------------------------------------------
+
+    total_labour_days = 0
+
+    for report_date in dates:
+
+        total_labour_days += labour_records.filter(
+            date=report_date
+        ).count()
+
+    summary_table = Table(
+        [
+            [
+                Paragraph(
+                    "<b>Total Labour Days Worked:</b>",
+                    cell_style
+                ),
+                Paragraph(
+                    str(total_labour_days),
+                    cell_style
+                )
+            ]
+        ],
+        colWidths=[
+            60 * mm,
+            30 * mm
+        ]
+    )
+
+    summary_table.setStyle(
+        TableStyle(
+            [
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, -1),
+                    light_green
+                ),
+                (
+                    "BOX",
+                    (0, 0),
+                    (-1, -1),
+                    0.7,
+                    border_green
+                ),
+                (
+                    "LEFTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    7
+                ),
+                (
+                    "RIGHTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    7
+                ),
+                (
+                    "TOPPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    6
+                ),
+                (
+                    "BOTTOMPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    6
+                ),
+            ]
+        )
+    )
+
+    elements.append(
+        summary_table
+    )
 
     document.build(
         elements

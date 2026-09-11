@@ -3,6 +3,11 @@ from . import views
 
 
 urlpatterns = [
+
+    # =====================================================
+    # DAILY WORK
+    # =====================================================
+
     path(
         "",
         views.daily_work_list,
@@ -27,6 +32,10 @@ urlpatterns = [
         name="daily_work_delete"
     ),
 
+    # =====================================================
+    # DAILY WORK REPORT
+    # =====================================================
+
     path(
         "report/",
         views.daily_work_report,
@@ -37,5 +46,26 @@ urlpatterns = [
         "report/pdf/",
         views.daily_work_pdf,
         name="daily_work_pdf"
+    ),
+
+    # =====================================================
+    # DAILY REPORT
+    # Project
+    # Date
+    # Total Labors
+    # Labors Name
+    # Work
+    # =====================================================
+
+    path(
+        "daily-report/",
+        views.daily_report,
+        name="daily_report"
+    ),
+
+    path(
+        "daily-report/pdf/",
+        views.daily_report_pdf,
+        name="daily_report_pdf"
     ),
 ]
