@@ -5,21 +5,32 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Daily Report</title>
 
+
     <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
 
         body {
             font-family: Arial, sans-serif;
             background: #f4f6f8;
             margin: 0;
             padding: 20px;
+            color: #333;
         }
 
+
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: auto;
             background: white;
             padding: 25px;
@@ -27,25 +38,34 @@
             box-shadow: 0 3px 15px rgba(0,0,0,0.1);
         }
 
+
+        /* TITLE */
+
         h2 {
             text-align: center;
-            margin-bottom: 25px;
+            margin: 0 0 25px 0;
+            font-size: 26px;
         }
+
+
+        /* FILTERS */
 
         .filters {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             padding: 15px;
             background: #f8f9fa;
             border-radius: 10px;
         }
 
+
         .filter-box {
             flex: 1;
             min-width: 180px;
         }
+
 
         label {
             display: block;
@@ -53,14 +73,25 @@
             margin-bottom: 7px;
         }
 
+
         input {
             width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
+            padding: 11px;
             border: 1px solid #ccc;
             border-radius: 7px;
             font-size: 15px;
         }
+
+
+        /* BUTTONS */
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
 
         button,
         .pdf-button,
@@ -72,68 +103,112 @@
             text-decoration: none;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 24px;
+            font-size: 14px;
         }
+
 
         button {
             background: #198754;
             color: white;
+            margin-top: 24px;
         }
+
 
         .pdf-button {
             background: #dc3545;
             color: white;
         }
 
+
         .back-button {
             background: #6c757d;
             color: white;
         }
 
+
         button:hover {
             background: #157347;
         }
+
 
         .pdf-button:hover {
             background: #bb2d3b;
         }
 
+
         .back-button:hover {
             background: #5c636a;
         }
 
-        .table-wrapper {
-            overflow-x: auto;
+
+        /* REPORT CARD */
+
+        .report-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            overflow: hidden;
+            background: white;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
 
-        th {
+        .report-card-header {
             background: #198754;
             color: white;
-            padding: 12px;
-            text-align: left;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 16px;
         }
 
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            vertical-align: top;
+
+        .report-row {
+            display: flex;
+            border-bottom: 1px solid #eee;
         }
 
-        tr:nth-child(even) {
+
+        .report-row:last-child {
+            border-bottom: none;
+        }
+
+
+        .report-label {
+            width: 180px;
+            min-width: 180px;
+            padding: 12px 15px;
             background: #f8f9fa;
+            font-weight: bold;
         }
+
+
+        .report-value {
+            flex: 1;
+            padding: 12px 15px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+
+        /* WORK TEXT */
+
+        .work-text {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+
+        /* EMPTY */
 
         .empty {
             text-align: center;
             padding: 30px;
             color: #666;
+            border: 1px solid #ddd;
+            border-radius: 10px;
         }
+
+
+        /* SUMMARY */
 
         .summary {
             margin-top: 20px;
@@ -142,27 +217,104 @@
             color: #0f5132;
             border-radius: 8px;
             font-weight: bold;
+            text-align: center;
         }
 
-        .actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+
+        /* MOBILE */
 
         @media (max-width: 700px) {
 
             body {
-                padding: 10px;
+                padding: 8px;
             }
+
 
             .container {
-                padding: 15px;
+                padding: 12px;
+                border-radius: 10px;
+                box-shadow: none;
             }
 
-            th,
-            td {
-                font-size: 13px;
+
+            h2 {
+                font-size: 21px;
+                margin-bottom: 18px;
+            }
+
+
+            .filters {
+                display: block;
+                padding: 12px;
+            }
+
+
+            .filter-box {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+
+
+            button {
+                width: 100%;
+                margin-top: 5px;
+            }
+
+
+            .actions {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+
+            .pdf-button,
+            .back-button {
+                width: 100%;
+                text-align: center;
+            }
+
+
+            .report-card {
+                margin-bottom: 15px;
+                border-radius: 9px;
+            }
+
+
+            .report-card-header {
+                padding: 11px 12px;
+                font-size: 15px;
+            }
+
+
+            .report-row {
+                display: block;
+            }
+
+
+            .report-label {
+                width: 100%;
+                min-width: 0;
+                padding: 8px 12px 4px 12px;
+                background: white;
+                color: #666;
+                font-size: 12px;
+            }
+
+
+            .report-value {
+                padding: 2px 12px 12px 12px;
+                font-size: 14px;
+            }
+
+
+            .work-text {
+                line-height: 1.5;
+            }
+
+
+            .summary {
+                font-size: 14px;
             }
 
         }
@@ -171,18 +323,28 @@
 
 </head>
 
+
 <body>
+
 
 <div class="container">
 
-    <h2>📊 IIT Project - Daily Report</h2>
 
+    <h2>
+        📊 IIT Project - Daily Report
+    </h2>
+
+
+    <!-- FILTERS -->
 
     <form method="GET" class="filters">
 
+
         <div class="filter-box">
 
-            <label>From Date</label>
+            <label>
+                From Date
+            </label>
 
             <input
                 type="date"
@@ -195,7 +357,9 @@
 
         <div class="filter-box">
 
-            <label>To Date</label>
+            <label>
+                To Date
+            </label>
 
             <input
                 type="date"
@@ -214,10 +378,14 @@
 
         </div>
 
+
     </form>
 
 
+    <!-- ACTION BUTTONS -->
+
     <div class="actions">
+
 
         <a
             class="pdf-button"
@@ -234,94 +402,119 @@
             ← Back to IIT Project
         </a>
 
-    </div>
-
-
-    <div class="table-wrapper">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>Project</th>
-
-                    <th>Date</th>
-
-                    <th>Total Labors</th>
-
-                    <th>Labors Name</th>
-
-                    <th>Work</th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                {% if report_data %}
-
-                    {% for row in report_data %}
-
-                    <tr>
-
-                        <td>
-                            {{ row.project }}
-                        </td>
-
-                        <td>
-                            {{ row.date|date:"Y-m-d" }}
-                        </td>
-
-                        <td>
-                            {{ row.total_labours }}
-                        </td>
-
-                        <td>
-                            {% if row.labour_names %}
-                                {{ row.labour_names }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if row.work %}
-                                {{ row.work }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                {% else %}
-
-                    <tr>
-
-                        <td colspan="5" class="empty">
-
-                            No daily report records found.
-
-                        </td>
-
-                    </tr>
-
-                {% endif %}
-
-            </tbody>
-
-        </table>
 
     </div>
+
+
+    <!-- REPORTS -->
 
 
     {% if report_data %}
+
+
+        {% for row in report_data %}
+
+
+        <div class="report-card">
+
+
+            <div class="report-card-header">
+
+                📅 {{ row.date|date:"Y-m-d" }}
+
+            </div>
+
+
+            <div class="report-row">
+
+                <div class="report-label">
+                    Project
+                </div>
+
+                <div class="report-value">
+                    {{ row.project }}
+                </div>
+
+            </div>
+
+
+            <div class="report-row">
+
+                <div class="report-label">
+                    Date
+                </div>
+
+                <div class="report-value">
+                    {{ row.date|date:"Y-m-d" }}
+                </div>
+
+            </div>
+
+
+            <div class="report-row">
+
+                <div class="report-label">
+                    Total Labors
+                </div>
+
+                <div class="report-value">
+                    {{ row.total_labours }}
+                </div>
+
+            </div>
+
+
+            <div class="report-row">
+
+                <div class="report-label">
+                    Labors Name
+                </div>
+
+                <div class="report-value">
+
+                    {% if row.labour_names %}
+
+                        {{ row.labour_names }}
+
+                    {% else %}
+
+                        -
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="report-row">
+
+                <div class="report-label">
+                    Work
+                </div>
+
+                <div class="report-value work-text">
+
+                    {% if row.work %}
+
+                        {{ row.work }}
+
+                    {% else %}
+
+                        -
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        {% endfor %}
+
 
         <div class="summary">
 
@@ -330,9 +523,22 @@
 
         </div>
 
+
+    {% else %}
+
+
+        <div class="empty">
+
+            No daily report records found.
+
+        </div>
+
+
     {% endif %}
 
+
 </div>
+
 
 </body>
 
