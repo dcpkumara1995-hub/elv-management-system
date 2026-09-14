@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
-from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import (
@@ -14,6 +14,7 @@ from reportlab.platypus import (
     Spacer,
     Table,
     TableStyle,
+    KeepTogether,
 )
 
 from .models import DailyWork
@@ -124,6 +125,7 @@ def daily_work_edit(request, work_id):
     if request.method == "POST":
 
         work_date = request.POST.get("date")
+
         work_text = request.POST.get(
             "work",
             "",
@@ -854,27 +856,17 @@ def daily_report_pdf(request):
     )
 
     # -----------------------------------------------------
-    # LANDSCAPE A4
-    #
-    # A4 landscape width = 297 mm
-    #
-    # Margins:
-    # Left  = 6 mm
-    # Right = 6 mm
-    #
-    # Available width = 285 mm
-    #
-    # Columns:
-    # 34 + 27 + 30 + 70 + 124 = 285 mm
+    # A4 PORTRAIT
     # -----------------------------------------------------
 
     document = SimpleDocTemplate(
         response,
-        pagesize=landscape(A4),
-        rightMargin=6 * mm,
-        leftMargin=6 * mm,
-        topMargin=6 * mm,
-        bottomMargin=6 * mm,
+        pagesize=A4,
+        rightMargin=14 * mm,
+        leftMargin=14 * mm,
+        topMargin=14 * mm,
+        bottomMargin=14 * mm,
+        title="IIT PROJECT - DAILY REPORT",
     )
 
     # -----------------------------------------------------
@@ -885,59 +877,90 @@ def daily_report_pdf(request):
         "DailyReportTitle",
         fontName="Helvetica-Bold",
         fontSize=18,
-        leading=21,
+        leading=22,
         alignment=TA_CENTER,
-        spaceAfter=5,
+        spaceAfter=4 * mm,
     )
 
     period_style = ParagraphStyle(
         "DailyReportPeriod",
         fontName="Helvetica",
         fontSize=10,
-        leading=12,
+        leading=13,
         alignment=TA_CENTER,
-        spaceAfter=8,
+        textColor=colors.HexColor(
+            "#555555"
+        ),
+        spaceAfter=7 * mm,
     )
 
-    header_style = ParagraphStyle(
-        "DailyReportHeader",
+    date_style = ParagraphStyle(
+        "DailyReportDate",
         fontName="Helvetica-Bold",
-        fontSize=10,
-        leading=12,
-        alignment=TA_CENTER,
+        fontSize=13,
+        leading=16,
+        alignment=TA_LEFT,
         textColor=colors.white,
     )
 
-    cell_style = ParagraphStyle(
-        "DailyReportCell",
-        fontName="Helvetica",
+    label_style = ParagraphStyle(
+        "DailyReportLabel",
+        fontName="Helvetica-Bold",
         fontSize=10,
         leading=13,
         alignment=TA_LEFT,
     )
 
-    center_cell_style = ParagraphStyle(
-        "DailyReportCenterCell",
+    value_style = ParagraphStyle(
+        "DailyReportValue",
         fontName="Helvetica",
         fontSize=10,
-        leading=13,
-        alignment=TA_CENTER,
-    )
-
-    summary_title_style = ParagraphStyle(
-        "SummaryTitle",
-        fontName="Helvetica-Bold",
-        fontSize=11,
         leading=14,
         alignment=TA_LEFT,
+        wordWrap="CJK",
     )
 
-    summary_value_style = ParagraphStyle(
-        "SummaryValue",
+    work_title_style = ParagraphStyle(
+        "DailyReportWorkTitle",
+        fontName="Helvetica-Bold",
+        fontSize=10,
+        leading=13,
+        alignment=TA_LEFT,
+        textColor=colors.HexColor(
+            "#198754"
+        ),
+        spaceAfter=3 * mm,
+    )
+
+    work_style = ParagraphStyle(
+        "DailyReportWork",
+        fontName="Helvetica",
+        fontSize=10,
+        leading=14,
+        alignment=TA_LEFT,
+        wordWrap="CJK",
+    )
+
+    summary_style = ParagraphStyle(
+        "DailyReportSummary",
         fontName="Helvetica-Bold",
         fontSize=11,
         leading=14,
         alignment=TA_CENTER,
+        textColor=colors.HexColor(
+            "#0f5132"
+        ),
+    )
+
+    empty_style = ParagraphStyle(
+        "DailyReportEmpty",
+        fontName="Helvetica",
+        fontSize=10,
+        leading=14,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor(
+            "#666666"
+        ),
     )
 
     # -----------------------------------------------------
@@ -946,12 +969,20 @@ def daily_report_pdf(request):
 
     story = []
 
+    # -----------------------------------------------------
+    # TITLE
+    # -----------------------------------------------------
+
     story.append(
         Paragraph(
             "IIT PROJECT - DAILY REPORT",
             title_style,
         )
     )
+
+    # -----------------------------------------------------
+    # PERIOD
+    # -----------------------------------------------------
 
     if start_date and end_date:
 
@@ -983,296 +1014,607 @@ def daily_report_pdf(request):
     )
 
     # -----------------------------------------------------
-    # MAIN TABLE
+    # DAILY DATE SECTIONS
     # -----------------------------------------------------
 
-    table_data = [
-        [
-            Paragraph(
-                "Project",
-                header_style,
-            ),
-            Paragraph(
-                "Date",
-                header_style,
-            ),
-            Paragraph(
-                "Total Labors",
-                header_style,
-            ),
-            Paragraph(
-                "Labors Name",
-                header_style,
-            ),
-            Paragraph(
-                "Work",
-                header_style,
-            ),
-        ]
-    ]
+    if all_dates:
 
-    total_labour_days = 0
+        total_labour_days = 0
 
-    for report_date in all_dates:
+        for report_date in all_dates:
 
-        labour_names = attendance_by_date.get(
-            report_date,
-            [],
-        )
+            labour_names = attendance_by_date.get(
+                report_date,
+                [],
+            )
 
-        work_items = work_by_date.get(
-            report_date,
-            [],
-        )
+            work_items = work_by_date.get(
+                report_date,
+                [],
+            )
 
-        total_labours = len(
-            labour_names
-        )
+            total_labours = len(
+                labour_names
+            )
 
-        total_labour_days += total_labours
+            # -------------------------------------------------
+            # KEEP EXISTING CALCULATION
+            # -------------------------------------------------
 
-        labour_text = ", ".join(
-            labour_names
-        )
+            total_labour_days += total_labours
 
-        work_text = "\n".join(
-            work_items
-        )
+            # -------------------------------------------------
+            # DAILY SECTION
+            # -------------------------------------------------
 
-        if not labour_text:
+            daily_section = []
 
-            labour_text = "-"
+            # -------------------------------------------------
+            # DATE HEADER
+            # -------------------------------------------------
 
-        if not work_text:
+            date_header = Table(
+                [
+                    [
+                        Paragraph(
+                            report_date.strftime(
+                                "%Y-%m-%d"
+                            ),
+                            date_style,
+                        )
+                    ]
+                ],
+                colWidths=[
+                    182 * mm
+                ],
+            )
 
-            work_text = "-"
+            date_header.setStyle(
+                TableStyle(
+                    [
+                        (
+                            "BACKGROUND",
+                            (0, 0),
+                            (-1, -1),
+                            colors.HexColor(
+                                "#198754"
+                            ),
+                        ),
+                        (
+                            "LEFTPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            9,
+                        ),
+                        (
+                            "RIGHTPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            9,
+                        ),
+                        (
+                            "TOPPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            8,
+                        ),
+                        (
+                            "BOTTOMPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            8,
+                        ),
+                    ]
+                )
+            )
 
-        table_data.append(
-            [
+            daily_section.append(
+                date_header
+            )
+
+            # -------------------------------------------------
+            # TOTAL LABORS
+            # -------------------------------------------------
+
+            total_table = Table(
+                [
+                    [
+                        Paragraph(
+                            "Total Labors:",
+                            label_style,
+                        ),
+                        Paragraph(
+                            str(total_labours),
+                            value_style,
+                        ),
+                    ]
+                ],
+                colWidths=[
+                    45 * mm,
+                    137 * mm,
+                ],
+            )
+
+            total_table.setStyle(
+                TableStyle(
+                    [
+                        (
+                            "BACKGROUND",
+                            (0, 0),
+                            (0, 0),
+                            colors.HexColor(
+                                "#f3f4f6"
+                            ),
+                        ),
+                        (
+                            "BOX",
+                            (0, 0),
+                            (-1, -1),
+                            0.5,
+                            colors.HexColor(
+                                "#d5d5d5"
+                            ),
+                        ),
+                        (
+                            "INNERGRID",
+                            (0, 0),
+                            (-1, -1),
+                            0.5,
+                            colors.HexColor(
+                                "#d5d5d5"
+                            ),
+                        ),
+                        (
+                            "VALIGN",
+                            (0, 0),
+                            (-1, -1),
+                            "TOP",
+                        ),
+                        (
+                            "LEFTPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            8,
+                        ),
+                        (
+                            "RIGHTPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            8,
+                        ),
+                        (
+                            "TOPPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            7,
+                        ),
+                        (
+                            "BOTTOMPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            7,
+                        ),
+                    ]
+                )
+            )
+
+            daily_section.append(
+                total_table
+            )
+
+            # -------------------------------------------------
+            # LABORS
+            # -------------------------------------------------
+
+            if labour_names:
+
+                labour_text = ", ".join(
+                    labour_names
+                )
+
+            else:
+
+                labour_text = "-"
+
+            labour_table = Table(
+                [
+                    [
+                        Paragraph(
+                            "Labors:",
+                            label_style,
+                        ),
+                        Paragraph(
+                            labour_text,
+                            value_style,
+                        ),
+                    ]
+                ],
+                colWidths=[
+                    45 * mm,
+                    137 * mm,
+                ],
+            )
+
+            labour_table.setStyle(
+                TableStyle(
+                    [
+                        (
+                            "BACKGROUND",
+                            (0, 0),
+                            (0, 0),
+                            colors.HexColor(
+                                "#f3f4f6"
+                            ),
+                        ),
+                        (
+                            "BOX",
+                            (0, 0),
+                            (-1, -1),
+                            0.5,
+                            colors.HexColor(
+                                "#d5d5d5"
+                            ),
+                        ),
+                        (
+                            "INNERGRID",
+                            (0, 0),
+                            (-1, -1),
+                            0.5,
+                            colors.HexColor(
+                                "#d5d5d5"
+                            ),
+                        ),
+                        (
+                            "VALIGN",
+                            (0, 0),
+                            (-1, -1),
+                            "TOP",
+                        ),
+                        (
+                            "LEFTPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            8,
+                        ),
+                        (
+                            "RIGHTPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            8,
+                        ),
+                        (
+                            "TOPPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            7,
+                        ),
+                        (
+                            "BOTTOMPADDING",
+                            (0, 0),
+                            (-1, -1),
+                            7,
+                        ),
+                    ]
+                )
+            )
+
+            daily_section.append(
+                labour_table
+            )
+
+            # -------------------------------------------------
+            # WORK DETAILS
+            # -------------------------------------------------
+
+            daily_section.append(
+                Spacer(
+                    1,
+                    5 * mm,
+                )
+            )
+
+            daily_section.append(
                 Paragraph(
-                    "IIT Project",
-                    cell_style,
-                ),
-                Paragraph(
-                    str(report_date),
-                    center_cell_style,
-                ),
-                Paragraph(
-                    str(total_labours),
-                    center_cell_style,
-                ),
-                Paragraph(
-                    labour_text,
-                    cell_style,
-                ),
-                Paragraph(
-                    work_text.replace(
+                    "WORK DETAILS",
+                    work_title_style,
+                )
+            )
+
+            if work_items:
+
+                work_flowables = []
+
+                work_number = 1
+
+                for work_item in work_items:
+
+                    safe_text = (
+                        work_item
+                        .replace(
+                            "&",
+                            "&amp;",
+                        )
+                        .replace(
+                            "<",
+                            "&lt;",
+                        )
+                        .replace(
+                            ">",
+                            "&gt;",
+                        )
+                    )
+
+                    safe_text = safe_text.replace(
                         "\n",
                         "<br/>",
-                    ),
-                    cell_style,
-                ),
-            ]
+                    )
+
+                    work_flowables.append(
+                        Paragraph(
+                            (
+                                f"<b>{work_number}.</b> "
+                                f"{safe_text}"
+                            ),
+                            work_style,
+                        )
+                    )
+
+                    work_flowables.append(
+                        Spacer(
+                            1,
+                            3 * mm,
+                        )
+                    )
+
+                    work_number += 1
+
+                work_table = Table(
+                    [
+                        [
+                            work_flowables
+                        ]
+                    ],
+                    colWidths=[
+                        182 * mm
+                    ],
+                )
+
+                work_table.setStyle(
+                    TableStyle(
+                        [
+                            (
+                                "BACKGROUND",
+                                (0, 0),
+                                (-1, -1),
+                                colors.HexColor(
+                                    "#fafafa"
+                                ),
+                            ),
+                            (
+                                "BOX",
+                                (0, 0),
+                                (-1, -1),
+                                0.5,
+                                colors.HexColor(
+                                    "#d5d5d5"
+                                ),
+                            ),
+                            (
+                                "VALIGN",
+                                (0, 0),
+                                (-1, -1),
+                                "TOP",
+                            ),
+                            (
+                                "LEFTPADDING",
+                                (0, 0),
+                                (-1, -1),
+                                9,
+                            ),
+                            (
+                                "RIGHTPADDING",
+                                (0, 0),
+                                (-1, -1),
+                                9,
+                            ),
+                            (
+                                "TOPPADDING",
+                                (0, 0),
+                                (-1, -1),
+                                8,
+                            ),
+                            (
+                                "BOTTOMPADDING",
+                                (0, 0),
+                                (-1, -1),
+                                5,
+                            ),
+                        ]
+                    )
+                )
+
+                daily_section.append(
+                    work_table
+                )
+
+            else:
+
+                no_work_table = Table(
+                    [
+                        [
+                            Paragraph(
+                                "-",
+                                value_style,
+                            )
+                        ]
+                    ],
+                    colWidths=[
+                        182 * mm
+                    ],
+                )
+
+                no_work_table.setStyle(
+                    TableStyle(
+                        [
+                            (
+                                "BACKGROUND",
+                                (0, 0),
+                                (-1, -1),
+                                colors.HexColor(
+                                    "#fafafa"
+                                ),
+                            ),
+                            (
+                                "BOX",
+                                (0, 0),
+                                (-1, -1),
+                                0.5,
+                                colors.HexColor(
+                                    "#d5d5d5"
+                                ),
+                            ),
+                            (
+                                "LEFTPADDING",
+                                (0, 0),
+                                (-1, -1),
+                                9,
+                            ),
+                            (
+                                "RIGHTPADDING",
+                                (0, 0),
+                                (-1, -1),
+                                9,
+                            ),
+                            (
+                                "TOPPADDING",
+                                (0, 0),
+                                (-1, -1),
+                                8,
+                            ),
+                            (
+                                "BOTTOMPADDING",
+                                (0, 0),
+                                (-1, -1),
+                                8,
+                            ),
+                        ]
+                    )
+                )
+
+                daily_section.append(
+                    no_work_table
+                )
+
+            # -------------------------------------------------
+            # SPACE BETWEEN DATE SECTIONS
+            # -------------------------------------------------
+
+            daily_section.append(
+                Spacer(
+                    1,
+                    8 * mm,
+                )
+            )
+
+            # -------------------------------------------------
+            # KEEP DATE SECTION TOGETHER
+            # -------------------------------------------------
+
+            story.append(
+                KeepTogether(
+                    daily_section
+                )
+            )
+
+    else:
+
+        story.append(
+            Spacer(
+                1,
+                10 * mm,
+            )
         )
 
-    if len(table_data) == 1:
-
-        table_data.append(
-            [
-                Paragraph(
-                    "IIT Project",
-                    cell_style,
-                ),
-                Paragraph(
-                    "-",
-                    center_cell_style,
-                ),
-                Paragraph(
-                    "0",
-                    center_cell_style,
-                ),
-                Paragraph(
-                    "-",
-                    cell_style,
-                ),
-                Paragraph(
-                    "No records found.",
-                    cell_style,
-                ),
-            ]
+        story.append(
+            Paragraph(
+                "No daily report records found.",
+                empty_style,
+            )
         )
+
+        total_labour_days = 0
 
     # -----------------------------------------------------
-    # MAIN TABLE
+    # TOTAL LABOUR DAYS
     # -----------------------------------------------------
-
-    main_table = Table(
-        table_data,
-        colWidths=[
-            34 * mm,
-            27 * mm,
-            30 * mm,
-            70 * mm,
-            124 * mm,
-        ],
-        repeatRows=1,
-        hAlign="LEFT",
-    )
-
-    main_table.setStyle(
-        TableStyle(
-            [
-                (
-                    "BACKGROUND",
-                    (0, 0),
-                    (-1, 0),
-                    colors.HexColor(
-                        "#198754"
-                    ),
-                ),
-                (
-                    "TEXTCOLOR",
-                    (0, 0),
-                    (-1, 0),
-                    colors.white,
-                ),
-                (
-                    "FONTNAME",
-                    (0, 0),
-                    (-1, 0),
-                    "Helvetica-Bold",
-                ),
-                (
-                    "GRID",
-                    (0, 0),
-                    (-1, -1),
-                    0.6,
-                    colors.grey,
-                ),
-                (
-                    "VALIGN",
-                    (0, 0),
-                    (-1, -1),
-                    "TOP",
-                ),
-                (
-                    "LEFTPADDING",
-                    (0, 0),
-                    (-1, -1),
-                    5,
-                ),
-                (
-                    "RIGHTPADDING",
-                    (0, 0),
-                    (-1, -1),
-                    5,
-                ),
-                (
-                    "TOPPADDING",
-                    (0, 0),
-                    (-1, -1),
-                    6,
-                ),
-                (
-                    "BOTTOMPADDING",
-                    (0, 0),
-                    (-1, -1),
-                    6,
-                ),
-                (
-                    "ALIGN",
-                    (1, 1),
-                    (2, -1),
-                    "CENTER",
-                ),
-            ]
-        )
-    )
-
-    story.append(
-        main_table
-    )
 
     story.append(
         Spacer(
             1,
-            10,
+            3 * mm,
         )
     )
 
-    # -----------------------------------------------------
-    # SUMMARY
-    # -----------------------------------------------------
-
-    summary_data = [
-        [
-            Paragraph(
-                "Total Labour Days Worked",
-                summary_title_style,
-            ),
-            Paragraph(
-                str(total_labour_days),
-                summary_value_style,
-            ),
-        ]
-    ]
-
     summary_table = Table(
-        summary_data,
-        colWidths=[
-            90 * mm,
-            35 * mm,
+        [
+            [
+                Paragraph(
+                    (
+                        "TOTAL LABOUR DAYS WORKED: "
+                        f"{total_labour_days}"
+                    ),
+                    summary_style,
+                )
+            ]
         ],
-        hAlign="LEFT",
+        colWidths=[
+            182 * mm
+        ],
     )
 
     summary_table.setStyle(
         TableStyle(
             [
                 (
-                    "GRID",
-                    (0, 0),
-                    (-1, -1),
-                    0.6,
-                    colors.grey,
-                ),
-                (
                     "BACKGROUND",
                     (0, 0),
-                    (0, 0),
+                    (-1, -1),
                     colors.HexColor(
-                        "#e9f7ef"
+                        "#d1e7dd"
                     ),
                 ),
                 (
-                    "VALIGN",
+                    "BOX",
                     (0, 0),
                     (-1, -1),
-                    "MIDDLE",
+                    0.7,
+                    colors.HexColor(
+                        "#a3cfbb"
+                    ),
                 ),
                 (
                     "LEFTPADDING",
                     (0, 0),
                     (-1, -1),
-                    6,
+                    8,
                 ),
                 (
                     "RIGHTPADDING",
                     (0, 0),
                     (-1, -1),
-                    6,
+                    8,
                 ),
                 (
                     "TOPPADDING",
                     (0, 0),
                     (-1, -1),
-                    6,
+                    10,
                 ),
                 (
                     "BOTTOMPADDING",
                     (0, 0),
                     (-1, -1),
-                    6,
+                    10,
                 ),
             ]
         )
