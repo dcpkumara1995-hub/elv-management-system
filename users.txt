@@ -1,0 +1,8 @@
+12 objects imported automatically (use -v 2 for details).
+
+ID: 2 | Username: chamara | Email:  | Staff: True | Superuser: True | Active: True
+ID: 3 | Username: Chamara | Email: d.c.p.kumara.1995@gmail.com | Staff: True | Superuser: True | Active: True
+ID: 6 | Username: Nimalka | Email:  | Staff: False | Superuser: False | Active: True
+ID: 1 | Username: Admin | Email: d.c.p.kumara.1995@gmail.com | Staff: True | Superuser: True | Active: True
+ID: 4 | Username: Test 1 | Email:  | Staff: False | Superuser: False | Active: False
+ID: 5 | Username: Ayesha | Email:  | Staff: False | Superuser: False | Active: False

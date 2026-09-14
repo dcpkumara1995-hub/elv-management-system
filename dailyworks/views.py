@@ -508,7 +508,7 @@ def daily_work_pdf(request):
                     (0, 0),
                     (-1, 0),
                     colors.HexColor(
-                        "#198754"
+                        "#0d6efd"
                     ),
                 ),
                 (
@@ -927,7 +927,7 @@ def daily_report_pdf(request):
         leading=13,
         alignment=TA_LEFT,
         textColor=colors.HexColor(
-            "#198754"
+            "#0d6efd"
         ),
         spaceAfter=3 * mm,
     )
@@ -948,7 +948,7 @@ def daily_report_pdf(request):
         leading=14,
         alignment=TA_CENTER,
         textColor=colors.HexColor(
-            "#0f5132"
+            "#084298"
         ),
     )
 
@@ -1077,7 +1077,7 @@ def daily_report_pdf(request):
                             (0, 0),
                             (-1, -1),
                             colors.HexColor(
-                                "#198754"
+                                "#0d6efd"
                             ),
                         ),
                         (
@@ -1580,7 +1580,7 @@ def daily_report_pdf(request):
                     (0, 0),
                     (-1, -1),
                     colors.HexColor(
-                        "#d1e7dd"
+                        "#cfe2ff"
                     ),
                 ),
                 (
@@ -1589,7 +1589,7 @@ def daily_report_pdf(request):
                     (-1, -1),
                     0.7,
                     colors.HexColor(
-                        "#a3cfbb"
+                        "#9ec5fe"
                     ),
                 ),
                 (
